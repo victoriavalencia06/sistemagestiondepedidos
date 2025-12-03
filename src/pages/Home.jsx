@@ -130,9 +130,6 @@ const Home = () => {
                                 <button className="btn btn-primary" onClick={() => scrollToSection('menu')}>
                                     Ver menú
                                 </button>
-                                <button className="btn btn-secondary" onClick={() => scrollToSection('contacto')}>
-                                    Reservar mesa
-                                </button>
                             </div>
                         </div>
                         <div className="hero-image">

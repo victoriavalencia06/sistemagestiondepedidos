@@ -1,117 +1,59 @@
-import React, { useState } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import React, { useContext } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { AuthContext } from "../../context/AuthContext";
+import { FaTimes } from "react-icons/fa";
 
-const Register = ({ isOpen, onClose, onSwitchToLogin, onRegister }) => {
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        acceptTerms: false
+const schema = yup.object({
+    nombre: yup.string().required("El nombre es obligatorio"),
+    email: yup.string().email("Correo inválido").required("El correo es obligatorio"),
+    password: yup.string().min(8, "Mínimo 8 caracteres").required("La contraseña es obligatoria"),
+    password_confirmation: yup
+        .string()
+        .oneOf([yup.ref("password")], "Las contraseñas no coinciden")
+        .required("Debes confirmar la contraseña"),
+});
+
+const Register = ({ isOpen, onClose, onSwitchToLogin }) => {
+    const { register: registerUser } = useContext(AuthContext);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        reset,
+    } = useForm({
+        resolver: yupResolver(schema),
     });
 
-    const [alert, setAlert] = useState({
-        show: false,
-        message: '',
-        type: ''
-    });
+    const [alert, setAlert] = React.useState({ show: false, type: "", message: "" });
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
+    const onSubmit = async (data) => {
+        try {
+            await registerUser(
+                data.nombre,
+                data.email,
+                data.password,
+                data.password_confirmation
+            );
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        // Validaciones
-        if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
             setAlert({
                 show: true,
-                message: 'Por favor, completa todos los campos',
-                type: 'error'
+                type: "success",
+                message: "Cuenta creada correctamente",
             });
-            return;
-        }
 
-        if (formData.password.length < 8) {
+            reset();
+
+            setTimeout(() => onClose(), 1200);
+        } catch (error) {
             setAlert({
                 show: true,
-                message: 'La contraseña debe tener al menos 8 caracteres',
-                type: 'error'
+                type: "error",
+                message: "Error al crear tu cuenta",
             });
-            return;
         }
-
-        if (formData.password !== formData.confirmPassword) {
-            setAlert({
-                show: true,
-                message: 'Las contraseñas no coinciden',
-                type: 'error'
-            });
-            return;
-        }
-
-        if (!formData.acceptTerms) {
-            setAlert({
-                show: true,
-                message: 'Debes aceptar los términos y condiciones',
-                type: 'error'
-            });
-            return;
-        }
-
-        // Verificar si el usuario ya existe
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const existingUser = users.find(u => u.email === formData.email);
-
-        if (existingUser) {
-            setAlert({
-                show: true,
-                message: 'Este correo ya está registrado',
-                type: 'error'
-            });
-            return;
-        }
-
-        // Registrar nuevo usuario
-        const newUser = {
-            name: formData.name,
-            email: formData.email,
-            password: formData.password
-        };
-
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-
-        setAlert({
-            show: true,
-            message: `¡Cuenta creada con éxito! Bienvenido/a ${formData.name}`,
-            type: 'success'
-        });
-
-        // Resetear formulario
-        setFormData({
-            name: '',
-            email: '',
-            password: '',
-            confirmPassword: '',
-            acceptTerms: false
-        });
-
-        // Cerrar modal después de éxito
-        setTimeout(() => {
-            const currentUser = {
-                name: newUser.name,
-                email: newUser.email
-            };
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            onRegister(currentUser);
-            onClose();
-        }, 1500);
     };
 
     if (!isOpen) return null;
@@ -125,78 +67,87 @@ const Register = ({ isOpen, onClose, onSwitchToLogin, onRegister }) => {
                         <FaTimes />
                     </button>
                 </div>
+
                 <div className="modal-body">
                     {alert.show && (
                         <div className={`alert alert-${alert.type} active`}>
                             {alert.message}
                         </div>
                     )}
-                    <form onSubmit={handleSubmit}>
+
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        {/* Nombre */}
                         <div className="form-group">
-                            <label htmlFor="registerName">Nombre Completo</label>
+                            <label>Nombre Completo</label>
                             <input
                                 type="text"
-                                id="registerName"
-                                name="name"
                                 className="form-control"
-                                placeholder="Tu nombre completo"
-                                value={formData.name}
-                                onChange={handleChange}
-                                required
+                                placeholder="Tu nombre"
+                                {...register("nombre")}
                             />
+                            {errors.nombre && (
+                                <small className="text-danger">{errors.nombre.message}</small>
+                            )}
                         </div>
+
+                        {/* Email */}
                         <div className="form-group">
-                            <label htmlFor="registerEmail">Correo Electrónico</label>
+                            <label>Correo Electrónico</label>
                             <input
                                 type="email"
-                                id="registerEmail"
-                                name="email"
                                 className="form-control"
-                                placeholder="tu@email.com"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
+                                placeholder="email@example.com"
+                                {...register("email")}
                             />
+                            {errors.email && (
+                                <small className="text-danger">{errors.email.message}</small>
+                            )}
                         </div>
+
+                        {/* Password */}
                         <div className="form-group">
-                            <label htmlFor="registerPassword">Contraseña</label>
+                            <label>Contraseña</label>
                             <input
                                 type="password"
-                                id="registerPassword"
-                                name="password"
                                 className="form-control"
-                                placeholder="Mínimo 8 caracteres"
-                                value={formData.password}
-                                onChange={handleChange}
-                                minLength="8"
-                                required
+                                {...register("password")}
                             />
+                            {errors.password && (
+                                <small className="text-danger">{errors.password.message}</small>
+                            )}
                         </div>
+
+                        {/* Confirm Password */}
                         <div className="form-group">
-                            <label htmlFor="confirmPassword">Confirmar Contraseña</label>
+                            <label>Confirmar Contraseña</label>
                             <input
                                 type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
                                 className="form-control"
-                                placeholder="Repite tu contraseña"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                required
+                                {...register("password_confirmation")}
                             />
+                            {errors.password_confirmation && (
+                                <small className="text-danger">
+                                    {errors.password_confirmation.message}
+                                </small>
+                            )}
                         </div>
-                        <button type="submit" className="btn-modal">
-                            Crear Cuenta
+
+                        <button type="submit" className="btn-modal" disabled={isSubmitting}>
+                            {isSubmitting ? "Creando cuenta..." : "Crear Cuenta"}
                         </button>
                     </form>
                 </div>
+
                 <div className="modal-footer">
                     <p>
-                        ¿Ya tienes cuenta?{' '}
-                        <a href="#" onClick={(e) => {
-                            e.preventDefault();
-                            onSwitchToLogin();
-                        }}>
+                        ¿Ya tienes cuenta?{" "}
+                        <a
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onSwitchToLogin();
+                            }}
+                        >
                             Inicia sesión aquí
                         </a>
                     </p>

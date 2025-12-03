@@ -1,77 +1,52 @@
-import React, { useState } from 'react';
-import { FaUser, FaTimes } from 'react-icons/fa';
+import React, { useContext } from "react";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { AuthContext } from "../../context/AuthContext";
+import { FaTimes } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-const Login = ({ isOpen, onClose, onSwitchToRegister, onLogin }) => {
-    const [formData, setFormData] = useState({
-        email: '',
-        password: '',
-        rememberMe: false
+const schema = yup.object({
+    email: yup.string().email("Correo inválido").required("El correo es obligatorio"),
+    password: yup.string().required("La contraseña es obligatoria"),
+});
+
+const Login = ({ isOpen, onClose, onSwitchToRegister }) => {
+    const navigate = useNavigate();
+    const { login } = useContext(AuthContext);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isSubmitting },
+        reset,
+    } = useForm({
+        resolver: yupResolver(schema),
     });
 
-    const [alert, setAlert] = useState({
-        show: false,
-        message: '',
-        type: ''
-    });
+    const [alert, setAlert] = React.useState({ show: false, type: "", message: "" });
+    const [showPassword, setShowPassword] = React.useState(false);
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
+    const onSubmit = async (data) => {
+        try {
+            await login(data.email, data.password);
+            navigate("/dashboard");
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        // Validación básica
-        if (!formData.email || !formData.password) {
             setAlert({
                 show: true,
-                message: 'Por favor, completa todos los campos',
-                type: 'error'
+                message: "Inicio de sesión exitoso",
+                type: "success",
             });
-            return;
-        }
 
-        // Simular login
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const user = users.find(u =>
-            u.email === formData.email && u.password === formData.password
-        );
+            reset();
 
-        if (user) {
+            setTimeout(() => onClose(), 1200);
+        } catch (error) {
             setAlert({
                 show: true,
-                message: '¡Bienvenido de nuevo!',
-                type: 'success'
-            });
-
-            // Guardar usuario actual
-            const currentUser = {
-                name: user.name,
-                email: user.email
-            };
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-
-            // Resetear formulario
-            setFormData({
-                email: '',
-                password: '',
-                rememberMe: false
-            });
-
-            // Cerrar modal después de éxito
-            setTimeout(() => {
-                onLogin(currentUser);
-                onClose();
-            }, 1500);
-        } else {
-            setAlert({
-                show: true,
-                message: 'Credenciales incorrectas. Inténtalo de nuevo.',
-                type: 'error'
+                message: "Credenciales incorrectas",
+                type: "error",
             });
         }
     };
@@ -93,55 +68,70 @@ const Login = ({ isOpen, onClose, onSwitchToRegister, onLogin }) => {
                             {alert.message}
                         </div>
                     )}
-                    <form onSubmit={handleSubmit}>
+
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        {/* Email */}
                         <div className="form-group">
-                            <label htmlFor="loginEmail">Correo Electrónico</label>
+                            <label>Correo Electrónico</label>
                             <input
                                 type="email"
-                                id="loginEmail"
-                                name="email"
                                 className="form-control"
-                                placeholder="tu@email.com"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
+                                placeholder="email@example.com"
+                                {...register("email")}
                             />
+                            {errors.email && (
+                                <small className="text-danger">{errors.email.message}</small>
+                            )}
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="loginPassword">Contraseña</label>
+
+                        {/* Password */}
+                        {/* Password */}
+                        <div className="form-group" style={{ position: "relative" }}>
+                            <label>Contraseña</label>
                             <input
-                                type="password"
-                                id="loginPassword"
-                                name="password"
+                                type={showPassword ? "text" : "password"}
                                 className="form-control"
                                 placeholder="Tu contraseña"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
+                                {...register("password")}
                             />
+
+                            {/* Botón para mostrar/ocultar */}
+                            <span
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: "absolute",
+                                    right: "10px",
+                                    top: "38px",
+                                    cursor: "pointer",
+                                    fontSize: "18px",
+                                    color: "#666"
+                                }}
+                            >
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </span>
+
+                            {errors.password && (
+                                <small className="text-danger">{errors.password.message}</small>
+                            )}
                         </div>
-                        <div className="form-check">
-                            <input
-                                type="checkbox"
-                                id="rememberMe"
-                                name="rememberMe"
-                                checked={formData.rememberMe}
-                                onChange={handleChange}
-                            />
-                            <label htmlFor="rememberMe">Recordarme</label>
-                        </div>
-                        <button type="submit" className="btn-modal">
-                            Iniciar Sesión
+
+
+                        <button type="submit" className="btn-modal" disabled={isSubmitting}>
+                            {isSubmitting ? "Iniciando..." : "Iniciar Sesión"}
                         </button>
                     </form>
                 </div>
+
                 <div className="modal-footer">
                     <p>
-                        ¿No tienes cuenta?{' '}
-                        <a href="#" onClick={(e) => {
-                            e.preventDefault();
-                            onSwitchToRegister();
-                        }}>
+                        ¿No tienes cuenta?{" "}
+                        <a
+                            href="#"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                onSwitchToRegister();
+                            }}
+                        >
                             Regístrate aquí
                         </a>
                     </p>
