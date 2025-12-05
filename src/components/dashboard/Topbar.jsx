@@ -68,7 +68,7 @@ export default function Topbar({ onLogout, collapsed, onToggle, currentScreen, u
                     <div className="brand-dot small">
                         <FaShoppingCart className="brand-icon" />
                     </div>
-                    <span className="brand-name">Gestión Pedidos</span>
+                    <span className="brand-name">Pedidos</span>
                 </div>
                 <h1 className="current-page-title">
                     {getCurrentPageTitle(currentScreen)}
@@ -78,15 +78,10 @@ export default function Topbar({ onLogout, collapsed, onToggle, currentScreen, u
             <div className="topbar-right">
                 {/* Dropdown de usuario */}
                 <div className="dropdown" ref={dropdownRef}>
-                    <button
-                        className="icon-btn"
-                        onClick={() => setShowUserMenu(!showUserMenu)}
-                        title="Perfil de usuario"
-                        aria-expanded={showUserMenu}
-                        aria-haspopup="true"
-                    >
-                        <FaUserCircle />
-                    </button>
+                    <div className="user-display" onClick={() => setShowUserMenu(!showUserMenu)}>
+    <FaUserCircle className="user-display-icon" />
+    <span className="user-display-name">{getUserName()}</span>
+</div>
 
                     {showUserMenu && (
                         <>
@@ -100,9 +95,6 @@ export default function Topbar({ onLogout, collapsed, onToggle, currentScreen, u
                                     <div className="dropdown-header-content">
                                         <FaUserCircle className="dropdown-header-icon" />
                                         <div className="dropdown-user-info">
-                                            <div className="dropdown-user-name">
-                                                {getUserName()}
-                                            </div>
                                             <div className="dropdown-user-role">
                                                 {getRoleName()}
                                             </div>

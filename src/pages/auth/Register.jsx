@@ -4,6 +4,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { AuthContext } from "../../context/AuthContext";
 import { FaTimes } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const schema = yup.object({
     nombre: yup.string().required("El nombre es obligatorio"),
@@ -28,6 +29,9 @@ const Register = ({ isOpen, onClose, onSwitchToLogin }) => {
     });
 
     const [alert, setAlert] = React.useState({ show: false, type: "", message: "" });
+    const [showPassword, setShowPassword] = React.useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+
 
     const onSubmit = async (data) => {
         try {
@@ -105,30 +109,62 @@ const Register = ({ isOpen, onClose, onSwitchToLogin }) => {
                         </div>
 
                         {/* Password */}
-                        <div className="form-group">
+                        <div className="form-group" style={{ position: "relative" }}>
                             <label>Contraseña</label>
+
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 className="form-control"
                                 {...register("password")}
                             />
+
+                            <span
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: "absolute",
+                                    right: "10px",
+                                    top: "40px",
+                                    cursor: "pointer",
+                                    fontSize: "22px",
+                                    color: "#666",
+                                    margin: "7px 4px 0 0",
+                                }}
+                            >
+                                {showPassword ? <FaEye /> : <FaEyeSlash />}
+                            </span>
+
                             {errors.password && (
                                 <small className="text-danger">{errors.password.message}</small>
                             )}
                         </div>
 
                         {/* Confirm Password */}
-                        <div className="form-group">
+                        <div className="form-group" style={{ position: "relative" }}>
                             <label>Confirmar Contraseña</label>
+
                             <input
-                                type="password"
+                                type={showConfirmPassword ? "text" : "password"}
                                 className="form-control"
                                 {...register("password_confirmation")}
                             />
+
+                            <span
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                style={{
+                                    position: "absolute",
+                                    right: "10px",
+                                    top: "40px",
+                                    cursor: "pointer",
+                                    fontSize: "22px",
+                                    color: "#666",
+                                    margin: "7px 4px 0 0",
+                                }}
+                            >
+                                {showPassword ? <FaEye /> : <FaEyeSlash />}
+                            </span>
+
                             {errors.password_confirmation && (
-                                <small className="text-danger">
-                                    {errors.password_confirmation.message}
-                                </small>
+                                <small className="text-danger">{errors.password_confirmation.message}</small>
                             )}
                         </div>
 

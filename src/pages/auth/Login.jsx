@@ -103,11 +103,12 @@ const Login = ({ isOpen, onClose, onSwitchToRegister }) => {
                                     right: "10px",
                                     top: "38px",
                                     cursor: "pointer",
-                                    fontSize: "18px",
-                                    color: "#666"
+                                    fontSize: "22px",
+                                    color: "#666",
+                                    margin: "8px 4px 0 0",
                                 }}
                             >
-                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                {showPassword ? <FaEye /> : <FaEyeSlash />}
                             </span>
 
                             {errors.password && (

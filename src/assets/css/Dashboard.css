@@ -225,7 +225,7 @@ body {
 .topbar-left {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
 }
 
 .menu-toggle-btn {
@@ -252,15 +252,14 @@ body {
     gap: 12px;
     padding-right: 20px;
     border-right: 1px solid rgba(0, 0, 0, 0.1);
-    margin-left: 34px;
+    margin-left: 63px;
 }
 
 .brand-dot.small {
     width: 35px;
     height: 35px;
     border-radius: 8px;
-    background: linear-gradient(135deg, #B05A2C, #E6C7A0);
-    box-shadow: 0 4px 12px rgba(176, 90, 44, 0.2);
+    background: var(--primary-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -514,7 +513,6 @@ body {
 
 .dropdown-header {
     padding: 18px 20px;
-    background-color: #FFF5F0;
     border-bottom: 1px solid var(--accent-soft);
 }
 
@@ -535,14 +533,33 @@ body {
     min-width: 0;
 }
 
-.dropdown-user-name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #2F2F2F;
-    margin-bottom: 2px;
+.user-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--white-overlay);
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    transition: 0.2s ease;
+}
+
+.user-display:hover {
+    background: var(--accent-hover); /* tono café suave */
+}
+
+/* Icono */
+.user-display-icon {
+    font-size: 22px;
+    color: var(--primary-color); /* café */
+}
+
+.user-display-name {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--dark-text);
     white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .dropdown-user-role {
