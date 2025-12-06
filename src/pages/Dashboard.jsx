@@ -4,8 +4,11 @@ import Topbar from '../components/dashboard/Topbar';
 import Sidebar from '../components/dashboard/Sidebar';
 import '../assets/css/Dashboard.css';
 
-// Componentes de páginas
+// Componentes del dashboard
 import WelcomeCard from '../components/dashboard/WelcomeCard';
+
+// Paginas
+import Categoria from '../pages/Categoria';
 import Pedidos from '../pages/Pedidos';
 import Productos from '../pages/Productos';
 import Usuarios from '../pages/Usuarios';
@@ -54,6 +57,7 @@ function Dashboard() {
     const pagesMap = {
         dashboard: <DashboardContent />,
         pedidos: <Pedidos />,
+        categoria: <Categoria />,
         productos: <Productos />,
         usuarios: <Usuarios />,
     };

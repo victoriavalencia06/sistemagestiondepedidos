@@ -7,7 +7,8 @@ import {
   FaCog,
   FaClipboardList,
   FaUserTie,
-  FaUser
+  FaUser,
+  FaTag
 } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -29,6 +30,7 @@ export default function Sidebar({
         return [
           { id: "dashboard", label: "Dashboard", icon: FaTachometerAlt },
           { id: "pedidos", label: "Pedidos", icon: FaShoppingCart },
+          { id: "categoria", label: "Categoria", icon: FaTag },
           { id: "productos", label: "Productos", icon: FaBox },
           { id: "usuarios", label: "Usuarios", icon: FaUsers },
           { id: "configuracion", label: "Configuración", icon: FaCog }

@@ -17,6 +17,7 @@
     "react-hook-form": "^7.67.0",
     "react-icons": "^5.5.0",
     "react-router-dom": "^7.10.0",
+    "sweetalert2": "^11.26.3",
     "yup": "^1.7.1"
   },
   "devDependencies": {

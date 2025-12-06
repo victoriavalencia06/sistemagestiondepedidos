@@ -127,7 +127,7 @@ const Register = ({ isOpen, onClose, onSwitchToLogin }) => {
                                     cursor: "pointer",
                                     fontSize: "22px",
                                     color: "#666",
-                                    margin: "7px 4px 0 0",
+                                    margin: "14px 4px 0 0",
                                 }}
                             >
                                 {showPassword ? <FaEye /> : <FaEyeSlash />}
@@ -157,7 +157,7 @@ const Register = ({ isOpen, onClose, onSwitchToLogin }) => {
                                     cursor: "pointer",
                                     fontSize: "22px",
                                     color: "#666",
-                                    margin: "7px 4px 0 0",
+                                    margin: "14px 4px 0 0",
                                 }}
                             >
                                 {showPassword ? <FaEye /> : <FaEyeSlash />}

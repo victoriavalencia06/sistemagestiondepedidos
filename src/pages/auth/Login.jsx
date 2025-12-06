@@ -85,7 +85,6 @@ const Login = ({ isOpen, onClose, onSwitchToRegister }) => {
                         </div>
 
                         {/* Password */}
-                        {/* Password */}
                         <div className="form-group" style={{ position: "relative" }}>
                             <label>Contraseña</label>
                             <input
@@ -105,7 +104,7 @@ const Login = ({ isOpen, onClose, onSwitchToRegister }) => {
                                     cursor: "pointer",
                                     fontSize: "22px",
                                     color: "#666",
-                                    margin: "8px 4px 0 0",
+                                    margin: "14px 4px 0 0",
                                 }}
                             >
                                 {showPassword ? <FaEye /> : <FaEyeSlash />}
