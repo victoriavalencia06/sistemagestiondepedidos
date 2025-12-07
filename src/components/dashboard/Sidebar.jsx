@@ -29,10 +29,10 @@ export default function Sidebar({
       case "1": // Administrador
         return [
           { id: "dashboard", label: "Dashboard", icon: FaTachometerAlt },
-          { id: "pedidos", label: "Pedidos", icon: FaShoppingCart },
-          { id: "categoria", label: "Categoria", icon: FaTag },
-          { id: "productos", label: "Productos", icon: FaBox },
-          { id: "usuarios", label: "Usuarios", icon: FaUsers },
+          { id: "pedido", label: "Pedidos", icon: FaShoppingCart },
+          { id: "categoria", label: "Categorias", icon: FaTag },
+          { id: "producto", label: "Productos", icon: FaBox },
+          { id: "usuario", label: "Usuarios", icon: FaUsers },
           { id: "configuracion", label: "Configuración", icon: FaCog }
         ];
 

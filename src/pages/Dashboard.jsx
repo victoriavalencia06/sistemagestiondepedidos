@@ -9,9 +9,9 @@ import WelcomeCard from '../components/dashboard/WelcomeCard';
 
 // Paginas
 import Categoria from '../pages/Categoria';
-import Pedidos from '../pages/Pedidos';
-import Productos from '../pages/Productos';
-import Usuarios from '../pages/Usuarios';
+import Pedido from '../pages/Pedido';
+import Producto from '../pages/Producto';
+import Usuario from '../pages/Usuario';
 import NotFound from '../components/NotFound';
 
 function Dashboard() {
@@ -56,10 +56,10 @@ function Dashboard() {
     // Mapa de páginas
     const pagesMap = {
         dashboard: <DashboardContent />,
-        pedidos: <Pedidos />,
+        pedido: <Pedido />,
         categoria: <Categoria />,
-        productos: <Productos />,
-        usuarios: <Usuarios />,
+        producto: <Producto />,
+        usuario: <Usuario />,
     };
 
     // Navegación

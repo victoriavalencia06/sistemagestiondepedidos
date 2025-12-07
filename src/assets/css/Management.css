@@ -16,7 +16,7 @@
     --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     --hover-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
     --transition: all 0.3s ease;
-    
+
     /* Estados */
     --success: #28a745;
     --warning: #ffc107;
@@ -111,8 +111,15 @@
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .management-form-header {
@@ -250,11 +257,11 @@ textarea.form-control {
     border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked+.slider {
     background-color: var(--accent);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
     transform: translateX(26px);
 }
 
@@ -411,7 +418,9 @@ input:checked + .slider:before {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .management-empty {
@@ -574,37 +583,219 @@ input:checked + .slider:before {
     border-left: 4px solid var(--success);
 }
 
+/* Añade esto al final de tu Management.css */
+
+/* Tarjetas de estadísticas - Mejoradas */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stats-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: var(--transition);
+    border: 1px solid var(--accent-soft);
+}
+
+.stats-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--hover-shadow);
+}
+
+.stats-card-icon {
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: center;
+}
+
+.stats-card-value {
+    color: var(--dark-text);
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 6px 0;
+    line-height: 1.2;
+}
+
+.stats-card-label {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Variantes de color para las tarjetas */
+.stats-card-total .stats-card-icon {
+    color: var(--accent);
+}
+
+.stats-card-activos .stats-card-icon {
+    color: var(--success);
+}
+
+.stats-card-bajo-stock .stats-card-icon {
+    color: var(--warning);
+}
+
+.stats-card-agotados .stats-card-icon {
+    color: var(--danger);
+}
+
+/* Íconos circulares para estadísticas */
+.stats-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+}
+
+.stats-icon-circle-total {
+    background: rgba(176, 90, 44, 0.1);
+    color: var(--accent);
+}
+
+.stats-icon-circle-activos {
+    background: rgba(40, 167, 69, 0.1);
+    color: var(--success);
+}
+
+.stats-icon-circle-bajo-stock {
+    background: rgba(255, 193, 7, 0.1);
+    color: var(--warning);
+}
+
+.stats-icon-circle-agotados {
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--danger);
+}
+
+/* Estado para stock bajo */
+.status-warning {
+    background: rgba(255, 193, 7, 0.1) !important;
+    color: var(--warning) !important;
+}
+
+/* Agrupar inputs */
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23666666' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 12px;
+    padding-right: 40px;
+}
+
+textarea.form-control {
+    min-height: 100px;
+    resize: vertical;
+    line-height: 1.5;
+}
+
+/* Información adicional debajo de inputs */
+.form-group small {
+    display: block;
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* Estilos para estados de pedido */
+.status-warning {
+    background: var(--warning) !important;
+    color: white !important;
+}
+
+.status-info {
+    background: var(--info) !important;
+    color: white !important;
+}
+
+/* Estilos para sección de productos en formulario */
+.form-section {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.form-section h3 {
+    color: var(--text);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--primary-light);
+}
+
+@media (max-width: 480px) {
+    .stats-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .management-container {
         padding: 16px;
     }
-    
+
     .management-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 16px;
     }
-    
+
     .management-form-container,
     .management-table-container {
         padding: 20px;
     }
-    
+
     .form-actions {
         flex-direction: column;
     }
-    
+
     .form-actions button {
         width: 100%;
     }
-    
+
     .role-actions {
         flex-direction: column;
     }
-    
+
     .role-actions button {
         width: 100%;
         margin-bottom: 4px;
+    }
+
+    .stats-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .stats-card {
+        padding: 16px;
+    }
+
+    .stats-card-value {
+        font-size: 20px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
     }
 }
