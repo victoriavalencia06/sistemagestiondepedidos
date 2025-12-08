@@ -2,8 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { FaPlus, FaSearch, FaShoppingCart, FaExclamationCircle, FaFilter, FaArrowLeft } from 'react-icons/fa';
 import PedidoList from '../components/pedido/PedidoList';
 import PedidoForm from '../components/pedido/PedidoForm';
-import PedidoDetalle from '../pages/PedidoDetalle';
+import PedidoDetalle from '../components/pedido/PedidoDetalle';
 import pedidoService from '../services/pedidoService';
+import usuarioService from '../services/usuarioService';
 import '../assets/css/Management.css';
 import { alertSuccess, alertError, alertConfirm } from "../utils/alerts";
 import { ESTADOS_PEDIDO } from '../constants/pedidoConstants';
@@ -13,14 +14,105 @@ const Pedidos = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [showForm, setShowForm] = useState(false);
-    const [showDetalle, setShowDetalle] = useState(false); // ← Nuevo estado
+    const [showDetalle, setShowDetalle] = useState(false);
     const [selectedPedido, setSelectedPedido] = useState(null);
     const [detalleLoading, setDetalleLoading] = useState(false);
+    const [usuarios, setUsuarios] = useState({}); // Nuevo estado para el mapa de usuarios
+    const [usuariosLoading, setUsuariosLoading] = useState(false); // Loading para usuarios
 
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
     const [estadoFilter, setEstadoFilter] = useState('');
+
+    // Cargar pedidos y usuarios
+    const loadPedidos = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const data = await pedidoService.get();
+            setPedidos(data);
+
+            // Después de cargar pedidos, cargar usuarios
+            await loadUsuarios(data);
+        } catch (err) {
+            setError(err.message || 'Error al cargar los pedidos');
+            console.error('Error cargando pedidos:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Función para cargar usuarios basados en los pedidos
+    const loadUsuarios = async (pedidosData) => {
+        if (!pedidosData || pedidosData.length === 0) return;
+
+        setUsuariosLoading(true);
+        try {
+            const idsUsuarios = [...new Set(pedidosData.map(p => p.idUsuario).filter(id => id))];
+
+            if (idsUsuarios.length === 0) {
+                setUsuarios({});
+                return;
+            }
+
+            // intentar cargar todos los usuarios de una vez si existe un método bulk
+            try {
+                const usuariosData = await usuarioService.getById(idsUsuarios);
+
+                // Crear mapa de usuarios
+                const usuariosMap = {};
+                usuariosData.forEach(usuario => {
+                    if (usuario && usuario.idUsuario) {
+                        usuariosMap[usuario.idUsuario] = {
+                            nombre: usuario.nombre || usuario.nombres || `Cliente #${usuario.idUsuario}`,
+                            email: usuario.email || usuario.correo || ''
+                        };
+                    }
+                });
+
+                setUsuarios(usuariosMap);
+            } catch (bulkError) {
+                // si no hay método bulk, cargar individualmente
+                const usuariosPromises = idsUsuarios.map(id =>
+                    usuarioService.getById(id)
+                        .then(usuario => ({
+                            id: usuario.idUsuario,
+                            data: {
+                                nombre: usuario.nombre || usuario.nombres || `Cliente #${usuario.idUsuario}`,
+                                email: usuario.email || usuario.correo || ''
+                            }
+                        }))
+                        .catch(err => {
+                            console.error(`Error cargando usuario ${id}:`, err);
+                            return {
+                                id: id,
+                                data: {
+                                    nombre: `Cliente #${id}`,
+                                    email: ''
+                                }
+                            };
+                        })
+                );
+
+                const usuariosResults = await Promise.all(usuariosPromises);
+                const usuariosMap = {};
+                usuariosResults.forEach(result => {
+                    usuariosMap[result.id] = result.data;
+                });
+
+                setUsuarios(usuariosMap);
+            }
+        } catch (err) {
+            console.error('Error cargando usuarios:', err);
+        } finally {
+            setUsuariosLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        loadPedidos();
+    }, []);
 
     // Filtrado y paginación
     const filteredPedidos = useMemo(() => {
@@ -32,16 +124,26 @@ const Pedidos = () => {
 
         if (searchTerm.trim() !== '') {
             const term = searchTerm.toLowerCase();
-            result = result.filter(p =>
-                p.codigo.toLowerCase().includes(term) ||
-                (p.usuario?.nombre && p.usuario.nombre.toLowerCase().includes(term)) ||
-                (p.usuario?.email && p.usuario.email.toLowerCase().includes(term)) ||
-                p.tipoPago.toLowerCase().includes(term)
-            );
+            result = result.filter(p => {
+                // Buscar en código
+                if (p.codigo.toLowerCase().includes(term)) return true;
+
+                // Buscar en tipo de pago
+                if (p.tipoPago.toLowerCase().includes(term)) return true;
+
+                // Buscar en información del usuario desde el mapa
+                const usuarioInfo = usuarios[p.idUsuario];
+                if (usuarioInfo) {
+                    if (usuarioInfo.nombre.toLowerCase().includes(term)) return true;
+                    if (usuarioInfo.email && usuarioInfo.email.toLowerCase().includes(term)) return true;
+                }
+
+                return false;
+            });
         }
 
         return result;
-    }, [pedidos, searchTerm, estadoFilter]);
+    }, [pedidos, searchTerm, estadoFilter, usuarios]);
 
     const currentPagePedidos = useMemo(() => {
         const startIndex = (currentPage - 1) * itemsPerPage;
@@ -52,39 +154,19 @@ const Pedidos = () => {
     const totalItems = filteredPedidos.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
-    // Cargar pedidos
-    const loadPedidos = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const data = await pedidoService.get();
-            setPedidos(data);
-        } catch (err) {
-            setError(err.message || 'Error al cargar los pedidos');
-            console.error('Error cargando pedidos:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        loadPedidos();
-    }, []);
-
     useEffect(() => {
         if (currentPage > totalPages && totalPages > 0) {
             setCurrentPage(totalPages);
         }
     }, [totalPages, currentPage]);
 
-    // Handlers
+    // Handlers (mantener iguales)
     const handleCreate = () => {
         setShowForm(true);
         setShowDetalle(false);
         setSelectedPedido(null);
     };
 
-    // ESTA ES LA FUNCIÓN QUE SE LLAMA DESDE EL BOTÓN "VER DETALLE"
     const handleView = async (pedido) => {
         setSelectedPedido(pedido);
         setDetalleLoading(true);
@@ -221,7 +303,6 @@ const Pedidos = () => {
 
     return (
         <div className="management-container">
-            {/* HEADER - CAMBIA SEGÚN LO QUE ESTAMOS VIENDO */}
             <div className="management-header">
                 {showDetalle ? (
                     <>
@@ -245,7 +326,7 @@ const Pedidos = () => {
                         </h1>
                         {!showForm && (
                             <button onClick={handleCreate} className="btn-management">
-                                <FaPlus style={{ marginRight: 6 }} /> Nuevo Pedido
+                                <FaPlus /> Nuevo Pedido
                             </button>
                         )}
                     </>
@@ -254,9 +335,9 @@ const Pedidos = () => {
 
             {/* FILTROS - SOLO EN LISTA */}
             {!showForm && !showDetalle && (
-                <div className="management-filters">
-                    <div className="search-input">
-                        <FaSearch className="search-icon" />
+                <div className="management-filters-pedidos">
+                    <div className="search-input-pedidos">
+                        <FaSearch className="search-icon-pedidos" />
                         <input
                             type="text"
                             placeholder="Buscar por código, cliente, tipo pago..."
@@ -265,26 +346,20 @@ const Pedidos = () => {
                         />
                     </div>
 
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                        <FaFilter style={{ color: 'var(--muted)' }} />
-                        <select
-                            value={estadoFilter}
-                            onChange={(e) => handleEstadoFilterChange(e.target.value)}
-                            style={{
-                                padding: '8px 12px',
-                                border: '1px solid var(--border)',
-                                borderRadius: '4px',
-                                background: 'white',
-                                minWidth: '150px'
-                            }}
-                        >
-                            <option value="">Todos los estados</option>
-                            {ESTADOS_PEDIDO.map((estado) => (
-                                <option key={estado.value} value={estado.value}>
-                                    {estado.label}
-                                </option>
-                            ))}
-                        </select>
+                    <div className="filters-right">
+                        <div className="filter-select-pedidos">
+                            <select
+                                value={estadoFilter}
+                                onChange={(e) => handleEstadoFilterChange(e.target.value)}
+                            >
+                                <option value="">Todos los estados</option>
+                                {ESTADOS_PEDIDO.map((estado) => (
+                                    <option key={estado.value} value={estado.value}>
+                                        {estado.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
                 </div>
             )}
@@ -313,8 +388,9 @@ const Pedidos = () => {
                 <>
                     <PedidoList
                         pedidos={currentPagePedidos}
-                        loading={loading}
-                        onView={handleView} // ← ESTA ES LA FUNCIÓN QUE SE LLAMA
+                        loading={loading || usuariosLoading} // Combinar ambos loadings
+                        usuarios={usuarios} // Pasar mapa de usuarios
+                        onView={handleView}
                         onCancel={handleCancel}
                     />
                     <Pagination />

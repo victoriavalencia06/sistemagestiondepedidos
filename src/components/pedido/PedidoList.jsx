@@ -2,7 +2,7 @@ import React from 'react';
 import { FaShoppingCart, FaReceipt } from 'react-icons/fa';
 import PedidoItem from './PedidoItem';
 
-const PedidoList = ({ pedidos, loading, onView, onCancel }) => {
+const PedidoList = ({ pedidos, loading, usuarios, onView, onCancel }) => {
     if (loading) {
         return (
             <div className="management-loading">
@@ -79,6 +79,7 @@ const PedidoList = ({ pedidos, loading, onView, onCancel }) => {
                             <PedidoItem
                                 key={pedido.idPedido}
                                 pedido={pedido}
+                                usuarios={usuarios}
                                 onView={onView}
                                 onCancel={onCancel}
                             />

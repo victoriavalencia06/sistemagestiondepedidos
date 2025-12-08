@@ -1,41 +1,50 @@
+// ../components/pedido/PedidoDetalle.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
     FaShoppingCart, FaArrowLeft, FaCheckCircle, FaTimesCircle,
-    FaTruck, FaPrint, FaCalendar, FaUser, FaMoneyBill,
-    FaBox, FaExclamationCircle, FaHistory
+    FaTruck, FaCalendar, FaUser, FaMoneyBill,
+    FaBox, FaExclamationCircle, FaHistory, FaPrint
 } from 'react-icons/fa';
 import pedidoService from '../../services/pedidoService';
 import { alertSuccess, alertError, alertConfirm } from "../../utils/alerts";
 import { getTipoPagoLabel, getEstadoLabel, ESTADOS_PEDIDO } from '../../constants/pedidoConstants';
-import '../assets/css/Management.css';
+import '../../assets/css/PedidoDetalle.css';
 
-const PedidoDetalle = () => {
-    const { id } = useParams();
+const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = null, loading: loadingProp = false, onClose = null, onCancel = null, onEstadoChange = null }) => {
+    const { id: idParam } = useParams();
     const navigate = useNavigate();
 
-    const [pedido, setPedido] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [pedido, setPedido] = useState(pedidoProp);
+    const [loading, setLoading] = useState(!!(!pedidoProp && !loadingProp));
     const [error, setError] = useState('');
     const [cambiandoEstado, setCambiandoEstado] = useState(false);
 
-    // Estados siguientes permitidos según el estado actual
-    const getEstadosPermitidos = (estadoActual) => {
-        const estados = {
-            'PENDIENTE': ['PROCESANDO', 'CANCELADO'],
-            'PROCESANDO': ['COMPLETADO', 'ENTREGADO'],
-            'COMPLETADO': ['ENTREGADO'],
-            'ENTREGADO': [], // No se puede cambiar
-            'CANCELADO': [], // No se puede cambiar
-        };
+    // id real: prioriza prop, luego param
+    const id = pedidoIdProp || idParam;
 
-        return ESTADOS_PEDIDO.filter(e =>
-            estados[estadoActual.toUpperCase()]?.includes(e.value.toUpperCase())
-        );
-    };
-
-    // Cargar pedido
     useEffect(() => {
+        // Si nos pasan un pedido por props, lo usamos y no consultamos
+        if (pedidoProp) {
+            setPedido(pedidoProp);
+            setLoading(false);
+            setError('');
+            return;
+        }
+
+        // si el padre maneja loading, usarlo como bandera inicial
+        if (loadingProp) {
+            setLoading(true);
+        }
+
+        // Si no hay id, marcar error
+        if (!id) {
+            setError('No se especificó el pedido');
+            setLoading(false);
+            return;
+        }
+
+        // Si no tenemos pedido, cargarlo
         const loadPedido = async () => {
             setLoading(true);
             setError('');
@@ -51,10 +60,48 @@ const PedidoDetalle = () => {
         };
 
         loadPedido();
-    }, [id]);
+    }, [id, pedidoProp, pedidoIdProp, loadingProp]);
 
-    // Cambiar estado del pedido
+    // Estados siguientes permitidos según el estado actual
+    const getEstadosPermitidos = (estadoActual) => {
+        const map = {
+            'PENDIENTE': ['PROCESANDO', 'CANCELADO'],
+            'PROCESANDO': ['COMPLETADO', 'ENTREGADO'],
+            'COMPLETADO': ['ENTREGADO'],
+            'ENTREGADO': [], // No se puede cambiar
+            'CANCELADO': [], // No se puede cambiar
+        };
+
+        if (!estadoActual) return [];
+        return ESTADOS_PEDIDO.filter(e =>
+            map[estadoActual.toUpperCase()]?.includes(e.value.toUpperCase())
+        );
+    };
+
+    const getEstadoColor = (estado) => {
+        if (!estado) return 'status-active';
+        switch (estado.toUpperCase()) {
+            case 'PENDIENTE': return 'status-warning';
+            case 'PROCESANDO': return 'status-info';
+            case 'COMPLETADO': case 'ENTREGADO': return 'status-success';
+            case 'CANCELADO': return 'status-inactive';
+            default: return 'status-active';
+        }
+    };
+
+    const getEstadoIcon = (estado) => {
+        if (!estado) return <FaHistory />;
+        switch (estado.toUpperCase()) {
+            case 'PROCESANDO': return <FaTruck />;
+            case 'COMPLETADO': return <FaCheckCircle />;
+            case 'ENTREGADO': return <FaCheckCircle />;
+            case 'CANCELADO': return <FaTimesCircle />;
+            default: return <FaHistory />;
+        }
+    };
+
     const handleCambiarEstado = async (nuevoEstado) => {
+        if (!pedido) return;
         const confirmMessages = {
             'PROCESANDO': '¿Marcar pedido como EN PROCESO? Esto indica que el pedido está siendo preparado.',
             'COMPLETADO': '¿Marcar pedido como COMPLETADO? Esto indica que el pedido está listo para entrega.',
@@ -76,9 +123,14 @@ const PedidoDetalle = () => {
 
             alertSuccess("Estado actualizado", `El pedido ahora está: ${getEstadoLabel(nuevoEstado)}`);
 
-            // Recargar pedido
-            const updated = await pedidoService.getById(id);
+            // Recargar pedido localmente (por si el service devuelve campos actualizados)
+            const updated = await pedidoService.getById(pedido.idPedido);
             setPedido(updated);
+
+            // Notificar al padre para que recargue la lista si necesita
+            if (typeof onEstadoChange === 'function') {
+                try { await onEstadoChange(); } catch (e) { /* ignorar si el padre no implementa */ }
+            }
         } catch (err) {
             alertError("Error", err.message || "No se pudo cambiar el estado");
         } finally {
@@ -86,15 +138,39 @@ const PedidoDetalle = () => {
         }
     };
 
-    // Imprimir comprobante
-    const handleImprimir = () => {
-        alertSuccess("Imprimir", "Funcionalidad de impresión en desarrollo");
-        // Aquí iría la lógica para generar PDF
+    // Función para imprimir
+    const handlePrint = () => {
+        window.print();
     };
 
-    // Volver a lista
     const handleVolver = () => {
+        if (typeof onClose === 'function') return onClose();
         navigate('/pedidos');
+    };
+
+    const handleCancelarDesdeDetalle = async () => {
+        if (!pedido) return;
+        if (typeof onCancel === 'function') {
+            return onCancel(pedido.idPedido);
+        }
+        // si no hay onCancel, intentar llamar al service directamente
+        const result = await alertConfirm(
+            "¿Cancelar pedido?",
+            "Esta acción anulará el pedido y revertirá el stock de productos. ¿Desea continuar?"
+        );
+        if (!result.isConfirmed) return;
+        try {
+            await pedidoService.cancelar(pedido.idPedido);
+            alertSuccess("Pedido cancelado", "El pedido fue anulado y el stock revertido.");
+            // actualizar localmente y notificar padre
+            const updated = await pedidoService.getById(pedido.idPedido);
+            setPedido(updated);
+            if (typeof onEstadoChange === 'function') {
+                try { await onEstadoChange(); } catch (e) { }
+            }
+        } catch (err) {
+            alertError("Error", err.message || 'No se pudo cancelar el pedido');
+        }
     };
 
     if (loading) {
@@ -115,257 +191,190 @@ const PedidoDetalle = () => {
                 <h3 className="management-empty-title">
                     {error || 'Pedido no encontrado'}
                 </h3>
-                <button onClick={handleVolver} className="btn-management">
-                    <FaArrowLeft style={{ marginRight: 6 }} /> Volver a pedidos
-                </button>
             </div>
         );
     }
 
     const estadosPermitidos = getEstadosPermitidos(pedido.estado);
-    const fechaPedido = new Date(pedido.fechaPedido).toLocaleString('es-ES');
+    const fechaPedido = pedido.fechaPedido ? new Date(pedido.fechaPedido).toLocaleString('es-ES') : '';
 
     return (
         <div className="management-container">
-            {/* Header con botón volver */}
-            <div className="management-header" style={{ justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <button onClick={handleVolver} className="btn-management btn-management-secondary">
-                        <FaArrowLeft />
-                    </button>
-                    <h1 className="management-title">
-                        <FaShoppingCart style={{ marginRight: 8 }} />
-                        Pedido #{pedido.idPedido}
-                    </h1>
-                </div>
+            {/* Contenedor principal con estilo café */}
+            <div className="pedido-detalle-container">
+                {/* Encabezado - Botón volver a la izquierda, título e imprimir a la derecha */}
+                <div className="pedido-header">
+                    <div className="pedido-header-info">
+                        <h2 className="pedido-title">
+                            <FaShoppingCart style={{ marginRight: 10 }} />
+                            Pedido #{pedido.idPedido}
+                        </h2>
+                        <p className="pedido-subtitle">
+                            Código: <strong>{pedido.codigo}</strong> • Fecha: {fechaPedido}
+                        </p>
+                    </div>
 
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <button onClick={handleImprimir} className="btn-management">
+                    <button
+                        onClick={handlePrint}
+                        className="btn-management btn-imprimir-pedido"
+                    >
                         <FaPrint style={{ marginRight: 6 }} /> Imprimir
                     </button>
                 </div>
-            </div>
 
-            {/* Información del pedido */}
-            <div className="management-form-container" style={{ marginBottom: '24px' }}>
-                <div className="management-form-header">
-                    <h2 className="management-form-title">
-                        <FaShoppingCart style={{ marginRight: 8 }} />
-                        Información del Pedido
-                    </h2>
-                    <p className="management-form-subtitle">
-                        Código: {pedido.codigo} • Creado el {fechaPedido}
-                    </p>
-                </div>
-
-                <div className="form-row">
-                    {/* Información del cliente */}
-                    <div className="form-group">
-                        <label className="form-label">
-                            <FaUser style={{ marginRight: 6 }} />
-                            Cliente
+                {/* Grid de información con inputs café */}
+                <div className="pedido-info-grid">
+                    {/* Cliente */}
+                    <div className="pedido-field-group">
+                        <label className="pedido-field-label">
+                            <FaUser size={14} /> Cliente
                         </label>
-                        <div style={{
-                            padding: '12px',
-                            background: 'var(--primary-light)',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border)'
-                        }}>
-                            <div style={{ fontWeight: 'bold' }}>{pedido.usuario?.nombre || 'Cliente'}</div>
-                            <div style={{ fontSize: '14px', color: 'var(--muted)' }}>
-                                {pedido.usuario?.email || ''}
-                            </div>
+                        <div className="pedido-input-cafe">
+                            <div className="pedido-cliente-nombre">{pedido.usuario?.nombre || 'Cliente'}</div>
+                            {pedido.usuario?.email && (
+                                <div className="pedido-cliente-email">{pedido.usuario.email}</div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Estado actual */}
-                    <div className="form-group">
-                        <label className="form-label">
-                            <FaHistory style={{ marginRight: 6 }} />
-                            Estado Actual
+                    {/* Estado */}
+                    <div className="pedido-field-group">
+                        <label className="pedido-field-label">
+                            <FaHistory size={14} /> Estado
                         </label>
-                        <div style={{
-                            padding: '12px',
-                            background: 'var(--card-bg)',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border)'
-                        }}>
-                            <span className={`status-badge ${getEstadoColor(pedido.estado)}`} style={{ fontSize: '14px' }}>
+                        <div className="pedido-input-cafe">
+                            <span className={`pedido-badge-estado ${getEstadoColor(pedido.estado)}`}>
                                 {getEstadoLabel(pedido.estado)}
                             </span>
                         </div>
                     </div>
-                </div>
 
-                <div className="form-row">
-                    {/* Tipo de pago */}
-                    <div className="form-group">
-                        <label className="form-label">
-                            <FaMoneyBill style={{ marginRight: 6 }} />
-                            Tipo de Pago
+                    {/* Tipo de Pago */}
+                    <div className="pedido-field-group">
+                        <label className="pedido-field-label">
+                            <FaMoneyBill size={14} /> Tipo de Pago
                         </label>
-                        <div style={{
-                            padding: '12px',
-                            background: 'var(--card-bg)',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border)'
-                        }}>
+                        <div className="pedido-input-cafe">
                             {getTipoPagoLabel(pedido.tipoPago)}
                         </div>
                     </div>
 
-                    {/* Total */}
-                    <div className="form-group">
-                        <label className="form-label">
-                            Total
+                    {/* Fecha */}
+                    <div className="pedido-field-group">
+                        <label className="pedido-field-label">
+                            <FaCalendar size={14} /> Fecha
                         </label>
-                        <div style={{
-                            padding: '12px',
-                            background: 'var(--success-light)',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border)',
-                            textAlign: 'center'
-                        }}>
-                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: 'var(--success)' }}>
-                                S/ {parseFloat(pedido.total).toFixed(2)}
-                            </div>
+                        <div className="pedido-input-cafe">
+                            {fechaPedido}
                         </div>
                     </div>
                 </div>
 
-                {/* Acciones de cambio de estado */}
+                {/* Total */}
+                <div className="pedido-total-box">
+                    <div className="pedido-total-label">Total del Pedido</div>
+                    <div className="pedido-total-monto">S/ {parseFloat(pedido.total || 0).toFixed(2)}</div>
+                    <div className="pedido-total-detail">
+                        {pedido.detalles?.length || 0} producto{pedido.detalles?.length !== 1 ? 's' : ''}
+                    </div>
+                </div>
+
+                {/* Cambio de estado */}
                 {estadosPermitidos.length > 0 && (
-                    <div className="form-group">
-                        <label className="form-label">
-                            Cambiar Estado
-                        </label>
-                        <div style={{
-                            display: 'flex',
-                            gap: '12px',
-                            flexWrap: 'wrap',
-                            padding: '12px',
-                            background: 'var(--card-bg)',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border)'
-                        }}>
+                    <div className="pedido-estado-actions">
+                        <h3 className="pedido-section-title">Cambiar Estado</h3>
+                        <div className="estado-buttons-grid">
                             {estadosPermitidos.map((estado) => (
                                 <button
                                     key={estado.value}
                                     onClick={() => handleCambiarEstado(estado.value)}
                                     disabled={cambiandoEstado}
-                                    className="btn-management"
-                                    style={{
-                                        flex: '1',
-                                        minWidth: '160px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '8px'
-                                    }}
+                                    className="btn-estado-cafe"
                                 >
-                                    {getEstadoIcon(estado.value)}
-                                    {estado.label}
+                                    <span className="btn-estado-icon">
+                                        {getEstadoIcon(estado.value)}
+                                    </span>
+                                    <span className="btn-estado-text">{estado.label}</span>
                                 </button>
                             ))}
                         </div>
-                        <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '8px' }}>
+                        <p className="pedido-estado-note">
                             * Solo se permiten transiciones específicas de estado
-                        </div>
+                        </p>
                     </div>
                 )}
-            </div>
 
-            {/* Lista de productos */}
-            <div className="management-table-container">
-                <div className="management-table-header">
-                    <h2 className="management-table-title">
-                        <FaBox style={{ marginRight: 8 }} />
-                        Productos del Pedido
-                    </h2>
-                    <p className="management-table-subtitle">
-                        {pedido.detalles?.length || 0} producto{pedido.detalles?.length !== 1 ? 's' : ''}
-                    </p>
-                </div>
-
-                <div className="table-responsive">
-                    <table className="management-table">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Precio Unitario</th>
-                                <th>Cantidad</th>
-                                <th>Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {pedido.detalles?.map((detalle, index) => (
-                                <tr key={detalle.idDetallePedido || index}>
-                                    <td>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            <div className="role-badge">
-                                                <FaBox />
-                                                {detalle.producto?.nombre || `Producto #${detalle.idProducto}`}
+                {/* Productos */}
+                <div className="pedido-productos-section">
+                    <h3 className="pedido-section-title">
+                        <FaBox style={{ marginRight: 8 }} /> Productos ({pedido.detalles?.length || 0})
+                    </h3>
+                    <div className="table-responsive">
+                        <table className="pedido-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Precio Unit.</th>
+                                    <th>Cantidad</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {pedido.detalles?.map((detalle, index) => (
+                                    <tr key={detalle.idDetallePedido || index}>
+                                        <td>
+                                            <div className="pedido-producto-item">
+                                                <span className="pedido-producto-icon">
+                                                    <FaBox size={12} />
+                                                </span>
+                                                <span className="pedido-producto-nombre">
+                                                    {detalle.producto?.nombre || `Producto #${detalle.idProducto}`}
+                                                </span>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>S/ {parseFloat(detalle.producto?.precio || 0).toFixed(2)}</td>
-                                    <td>{detalle.cantidad}</td>
-                                    <td>
-                                        <strong>S/ {parseFloat(detalle.subtotal || 0).toFixed(2)}</strong>
+                                        </td>
+                                        <td className="pedido-precio">S/ {parseFloat(detalle.producto?.precio || 0).toFixed(2)}</td>
+                                        <td className="pedido-cantidad">{detalle.cantidad}</td>
+                                        <td className="pedido-subtotal">
+                                            <strong>S/ {parseFloat(detalle.subtotal || 0).toFixed(2)}</strong>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colSpan="3" className="pedido-total-label-cell">TOTAL:</td>
+                                    <td className="pedido-total-cell">
+                                        S/ {parseFloat(pedido.total || 0).toFixed(2)}
                                     </td>
                                 </tr>
-                            ))}
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td colSpan="3" style={{ textAlign: 'right', fontWeight: 'bold' }}>
-                                    TOTAL:
-                                </td>
-                                <td style={{ fontWeight: 'bold', fontSize: '16px' }}>
-                                    S/ {parseFloat(pedido.total).toFixed(2)}
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
-            </div>
 
-            {/* Nota sobre inmutabilidad */}
-            <div style={{
-                marginTop: '24px',
-                padding: '16px',
-                background: 'var(--warning-light)',
-                border: '1px solid var(--warning)',
-                borderRadius: '8px',
-                fontSize: '14px',
-                color: 'var(--text)'
-            }}>
-                <FaExclamationCircle style={{ marginRight: '8px', color: 'var(--warning)' }} />
-                <strong>Nota:</strong> Los pedidos son inmutables por razones de auditoría. Solo se permite cambiar el estado según el flujo establecido.
+                {/* Nota y acciones */}
+                <div className="pedido-nota-box">
+                    <div className="pedido-nota-icon">
+                        <FaExclamationCircle size={18} />
+                    </div>
+                    <div className="pedido-nota-content">
+                        <p className="pedido-nota-text">
+                            <strong>Nota:</strong> Los pedidos son inmutables por razones de auditoría.
+                            Solo se permite cambiar el estado según el flujo establecido.
+                        </p>
+                        {pedido.estado?.toUpperCase() === 'PENDIENTE' && (
+                            <button
+                                onClick={handleCancelarDesdeDetalle}
+                                className="btn-cancelar-pedido"
+                            >
+                                <FaTimesCircle style={{ marginRight: 8 }} /> Cancelar Pedido
+                            </button>
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );
-};
-
-// Funciones auxiliares
-const getEstadoColor = (estado) => {
-    switch (estado.toUpperCase()) {
-        case 'PENDIENTE': return 'status-warning';
-        case 'PROCESANDO': return 'status-info';
-        case 'COMPLETADO': case 'ENTREGADO': return 'status-success';
-        case 'CANCELADO': return 'status-inactive';
-        default: return 'status-active';
-    }
-};
-
-const getEstadoIcon = (estado) => {
-    switch (estado.toUpperCase()) {
-        case 'PROCESANDO': return <FaTruck />;
-        case 'COMPLETADO': return <FaCheckCircle />;
-        case 'ENTREGADO': return <FaCheckCircle />;
-        case 'CANCELADO': return <FaTimesCircle />;
-        default: return <FaHistory />;
-    }
 };
 
 export default PedidoDetalle;

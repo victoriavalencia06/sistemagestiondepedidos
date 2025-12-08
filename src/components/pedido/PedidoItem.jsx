@@ -1,8 +1,16 @@
 import React from 'react';
-import { FaShoppingCart, FaEye, FaTimesCircle, FaMoneyBill, FaUser } from 'react-icons/fa';
+import { FaEye, FaTimesCircle, FaMoneyBill, FaUser } from 'react-icons/fa';
 import { getTipoPagoLabel, getEstadoLabel } from '../../constants/pedidoConstants';
 
-const PedidoItem = ({ pedido, onView, onCancel }) => {
+const PedidoItem = ({ pedido, usuarios, onView, onCancel }) => {
+    // Obtener información del usuario del mapa
+    const usuarioInfo = usuarios && usuarios[pedido.idUsuario] 
+        ? usuarios[pedido.idUsuario]
+        : {
+            nombre: `Cliente #${pedido.idUsuario}`,
+            email: ''
+        };
+
     const getEstadoColor = (estado) => {
         switch (estado.toUpperCase()) {
             case 'PENDIENTE': return 'status-warning';
@@ -24,31 +32,16 @@ const PedidoItem = ({ pedido, onView, onCancel }) => {
 
             <td>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <div style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '50%',
-                        background: 'var(--primary-light)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'var(--primary)',
-                        marginRight: '12px'
-                    }}>
-                        <FaUser />
-                    </div>
-                    <div>
-                        <div>{pedido.usuario?.nombre || 'Cliente'}</div>
-                        <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
-                            {pedido.usuario?.email || ''}
-                        </div>
-                    </div>
-                </div>
+    <div className="role-badge">
+        <FaUser />
+        {usuarioInfo.nombre}
+    </div>
+</div>
+
             </td>
 
             <td>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <FaMoneyBill style={{ color: 'var(--muted)' }} />
+                <div>
                     {getTipoPagoLabel(pedido.tipoPago)}
                 </div>
             </td>

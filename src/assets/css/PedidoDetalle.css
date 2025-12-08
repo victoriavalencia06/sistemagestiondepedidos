@@ -1,0 +1,587 @@
+.pedido-detalle-container {
+    background: var(--card);
+    border-radius: var(--border-radius);
+    padding: 24px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(176, 90, 44, 0.1);
+}
+
+/* Header */
+.pedido-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(176, 90, 44, 0.15);
+}
+
+.pedido-header-info {
+    flex: 1;
+}
+
+.pedido-title {
+    font-size: 24px;
+    color: var(--dark-text);
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+}
+
+.pedido-subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin: 0;
+    text-align: left;
+}
+
+/* Grid de información */
+.pedido-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.pedido-field-group {
+    margin-bottom: 0;
+}
+
+.pedido-field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Inputs con estilo café */
+.pedido-input-cafe {
+    background: linear-gradient(135deg, rgba(176, 90, 44, 0.03) 0%, rgba(230, 199, 160, 0.08) 100%);
+    border: 1px solid rgba(176, 90, 44, 0.25);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--dark-text);
+    font-size: 15px;
+    min-height: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.pedido-input-cafe:hover {
+    border-color: rgba(176, 90, 44, 0.4);
+    box-shadow: 0 2px 8px rgba(176, 90, 44, 0.1);
+}
+
+/* Información del cliente dentro del input café */
+.pedido-cliente-nombre {
+    font-weight: 600;
+    color: var(--dark-text);
+    margin-bottom: 4px;
+}
+
+.pedido-cliente-email {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* Badge de estado */
+.pedido-badge-estado {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+    text-align: center;
+    min-width: 100px;
+}
+
+.pedido-badge-estado.status-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.08) 100%);
+    color: #8a6d00;
+    border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.pedido-badge-estado.status-info {
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.15) 0%, rgba(23, 162, 184, 0.08) 100%);
+    color: #0c5460;
+    border: 1px solid rgba(23, 162, 184, 0.3);
+}
+
+.pedido-badge-estado.status-success {
+    background: linear-gradient(135deg, rgba(40, 167, 69, 0.15) 0%, rgba(40, 167, 69, 0.08) 100%);
+    color: #155724;
+    border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.pedido-badge-estado.status-inactive {
+    background: linear-gradient(135deg, rgba(108, 117, 125, 0.15) 0%, rgba(108, 117, 125, 0.08) 100%);
+    color: #383d41;
+    border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+/* Total */
+.pedido-total-box {
+    background: linear-gradient(135deg, rgba(176, 90, 44, 0.03) 0%, rgba(230, 199, 160, 0.08) 100%);
+    border: 2px solid rgba(176, 90, 44, 0.2);
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    margin: 30px 0;
+}
+
+.pedido-total-label {
+    font-size: 12px;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.pedido-total-monto {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 10px 0;
+}
+
+.pedido-total-detail {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+}
+
+/* Cambio de estado */
+.pedido-estado-actions {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(176, 90, 44, 0.1);
+}
+
+.pedido-section-title {
+    font-size: 18px;
+    color: var(--dark-text);
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+}
+
+.estado-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.btn-estado-cafe {
+    background: linear-gradient(135deg, rgba(176, 90, 44, 0.1) 0%, rgba(230, 199, 160, 0.15) 100%);
+    border: 1px solid rgba(176, 90, 44, 0.25);
+    border-radius: 10px;
+    padding: 14px;
+    color: var(--dark-text);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-estado-cafe:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(176, 90, 44, 0.2) 0%, rgba(230, 199, 160, 0.25) 100%);
+    border-color: rgba(176, 90, 44, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(176, 90, 44, 0.15);
+}
+
+.btn-estado-cafe:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-estado-icon {
+    color: var(--primary-color);
+}
+
+.btn-estado-text {
+    flex: 1;
+}
+
+.pedido-estado-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 10px 0 0 0;
+    font-style: italic;
+}
+
+/* Tabla de productos */
+.pedido-productos-section {
+    margin-bottom: 30px;
+}
+
+.pedido-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(176, 90, 44, 0.15);
+}
+
+.pedido-table th {
+    background: linear-gradient(135deg, rgba(176, 90, 44, 0.08) 0%, rgba(230, 199, 160, 0.12) 100%);
+    color: var(--primary-color);
+    font-weight: 600;
+    padding: 16px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 2px solid rgba(176, 90, 44, 0.2);
+}
+
+.pedido-table td {
+    padding: 16px;
+    border-bottom: 1px solid rgba(176, 90, 44, 0.1);
+    font-size: 14px;
+}
+
+.pedido-table tr:hover {
+    background: rgba(176, 90, 44, 0.03);
+}
+
+.pedido-table tfoot {
+    background: rgba(176, 90, 44, 0.05);
+}
+
+.pedido-producto-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pedido-producto-icon {
+    background: rgba(176, 90, 44, 0.1);
+    color: var(--primary-color);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.pedido-producto-nombre {
+    font-weight: 500;
+}
+
+.pedido-precio,
+.pedido-cantidad,
+.pedido-subtotal {
+    font-weight: 500;
+}
+
+.pedido-total-label-cell {
+    text-align: right;
+    font-weight: 600;
+    color: var(--dark-text);
+    padding-right: 20px;
+}
+
+.pedido-total-cell {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Nota */
+.pedido-nota-box {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.08) 0%, rgba(255, 193, 7, 0.04) 100%);
+    border: 1px solid rgba(255, 193, 7, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.pedido-nota-icon {
+    color: var(--warning);
+    margin-top: 2px;
+}
+
+.pedido-nota-content {
+    flex: 1;
+}
+
+.pedido-nota-text {
+    margin: 0 0 16px 0;
+    color: var(--dark-text);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.btn-cancelar-pedido {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(220, 53, 69, 0.15) 100%);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    color: var(--danger);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.btn-cancelar-pedido:hover {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.2) 0%, rgba(220, 53, 69, 0.25) 100%);
+    border-color: var(--danger);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.15);
+}
+
+/* Estilos para el botón de imprimir */
+.btn-imprimir-pedido {
+    background: linear-gradient(135deg, rgba(176, 90, 44, 0.1) 0%, rgba(230, 199, 160, 0.15) 100%);
+    border: 1px solid rgba(176, 90, 44, 0.25);
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-left: auto;
+    /* Esto lo empuja a la derecha */
+}
+
+.btn-imprimir-pedido:hover {
+    background: linear-gradient(135deg, rgba(176, 90, 44, 0.2) 0%, rgba(230, 199, 160, 0.25) 100%);
+    border-color: rgba(176, 90, 44, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(176, 90, 44, 0.15);
+}
+
+/* Ajustes para el header con tres elementos */
+.pedido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(176, 90, 44, 0.15);
+}
+
+.pedido-header-info {
+    flex: 1;
+    text-align: center;
+}
+
+/* Ajustes para botones en el header */
+.pedido-header .btn-management-secondary {
+    white-space: nowrap;
+}
+
+/* Ajustes generales de página de impresión */
+@page {
+    size: auto;
+    margin: 10mm;
+}
+
+/* Forzar que el body no añada márgenes inesperados */
+@media print {
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        height: auto;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Ocultar todo por defecto */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Hacer visible SOLO el contenedor del detalle y sus hijos */
+    .pedido-detalle-container,
+    .pedido-detalle-container * {
+        visibility: visible;
+    }
+
+    /* Colocar el contenedor en la posición superior izquierda y ocupar ancho completo */
+    .pedido-detalle-container {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        padding: 8mm !important;
+        /* menos padding para impresión */
+        box-shadow: none !important;
+        border: none !important;
+        background: #fff;
+        /* fondo blanco para impresión */
+    }
+
+    /* Ocultar controles que no queremos en la impresión (por si quedan) */
+    .btn-management,
+    .btn-imprimir-pedido,
+    .btn-cancelar-pedido,
+    .btn-estado-cafe,
+    .no-print {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+    /* Ajustes de texto y tablas para impresión */
+    .pedido-header {
+        border-bottom: 2px solid #222 !important;
+    }
+
+    .pedido-title {
+        font-size: 18pt !important;
+    }
+
+    .pedido-subtitle {
+        font-size: 10pt !important;
+    }
+
+    .pedido-table,
+    .pedido-table th,
+    .pedido-table td {
+        border-color: rgba(0, 0, 0, 0.08) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color: #000 !important;
+    }
+
+    /* Evitar que filas/tbody se partan en páginas inapropiadamente */
+    .pedido-table tbody tr,
+    .pedido-table tbody td {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Si la tabla es muy ancha, permitir que ocupe el ancho y reduzcamos la fuente */
+    .pedido-table {
+        width: 100% !important;
+        font-size: 11pt !important;
+        border-collapse: collapse;
+    }
+
+    /* Ajustes para que subtítulo quede alineado a la izquierda con el título */
+    .pedido-header-info {
+        text-align: left !important;
+        margin: 0;
+    }
+
+    /* Quitar sombras y fondos ligeros que no imprimen bien */
+    .pedido-card,
+    .pedido-input-cafe,
+    .pedido-total-box,
+    .pedido-nota-box {
+        box-shadow: none !important;
+        background: #fff !important;
+    }
+
+    /* Ajustes de color del badge al imprimir (usar tonos legibles) */
+    .pedido-badge-estado.status-warning {
+        background: #fff3cd !important;
+        color: #856404 !important;
+        border-color: #ffeeba !important;
+    }
+
+    .pedido-badge-estado.status-info {
+        background: #d1ecf1 !important;
+        color: #0c5460 !important;
+        border-color: #bee5eb !important;
+    }
+
+    .pedido-badge-estado.status-success {
+        background: #d4edda !important;
+        color: #155724 !important;
+        border-color: #c3e6cb !important;
+    }
+
+    .pedido-badge-estado.status-inactive {
+        background: #e2e3e5 !important;
+        color: #383d41 !important;
+        border-color: #d6d8db !important;
+    }
+
+    .pedido-nota-box {
+        display: none !important;
+        visibility: hidden !important;
+    }
+
+}
+
+/* Ajustes responsive */
+@media (max-width: 768px) {
+    .pedido-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+
+    .pedido-header-info {
+        order: 2;
+        text-align: left;
+    }
+
+    .pedido-header .btn-management-secondary {
+        order: 1;
+        align-self: flex-start;
+    }
+
+    .btn-imprimir-pedido {
+        order: 3;
+        align-self: flex-end;
+        margin-left: 0;
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .pedido-detalle-container {
+        padding: 16px;
+    }
+
+    .pedido-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .pedido-info-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .estado-buttons-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pedido-table {
+        font-size: 13px;
+    }
+
+    .pedido-table th,
+    .pedido-table td {
+        padding: 12px 8px;
+    }
+}

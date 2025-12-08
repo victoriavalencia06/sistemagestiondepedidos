@@ -485,6 +485,121 @@ input:checked+.slider:before {
     font-size: 14px;
 }
 
+/* Contenedor general */
+.management-filters-pedidos {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin: 16px 0;
+}
+
+/* Solo afecta al buscador de Pedidos */
+.search-input-pedidos {
+    position: relative;
+    flex: 1 1 420px;
+    max-width: 720px;
+}
+
+/* Icono del buscador */
+.search-icon-pedidos {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    pointer-events: none;
+    font-size: 14px;
+}
+
+/* Input exclusivo */
+.search-input-pedidos input {
+    width: 100%;
+    padding: 12px 16px 12px 40px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    transition: .15s ease;
+    color: var(--dark);
+}
+
+/* Focus */
+.search-input-pedidos input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    outline: none;
+}
+
+/* Contenedor de filtros a la derecha */
+.filters-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Select */
+.filter-select-pedidos select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    height: 40px;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.filter-select-pedidos {
+    position: relative;
+}
+
+/* Select sin flecha nativa */
+.filter-select-pedidos select {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: white;
+    min-width: 330px;
+    max-width: 420px;
+    font-size: 14px;
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+/* Flecha personalizada centrada */
+.filter-select-pedidos::after {
+    content: "▾";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--muted);
+    font-size: 25px;
+}
+
+/* Hover */
+.filter-select-pedidos select:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+}
+
+/* Focus */
+.filter-select-pedidos select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Active */
+.filter-select-pedidos select:active {
+    border-color: var(--accent);
+}
+
 /* Paginación */
 .management-pagination {
     display: flex;
@@ -797,5 +912,15 @@ textarea.form-control {
         grid-template-columns: 1fr;
         gap: 16px;
         margin-bottom: 16px;
+    }
+
+    .search-input-pedidos {
+        flex-basis: 100%;
+        max-width: none;
+    }
+
+    .filters-right {
+        width: 100%;
+        justify-content: flex-start;
     }
 }
