@@ -82,21 +82,16 @@
 
 /* Información del cliente dentro del input café */
 .pedido-cliente-nombre {
-    font-weight: 600;
+    font-weight: 500;
     color: var(--dark-text);
     margin-bottom: 4px;
-}
-
-.pedido-cliente-email {
-    font-size: 13px;
-    color: var(--muted);
 }
 
 /* Badge de estado */
 .pedido-badge-estado {
     padding: 6px 14px;
     border-radius: 20px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     display: inline-block;
     text-align: center;
@@ -125,6 +120,12 @@
     background: linear-gradient(135deg, rgba(108, 117, 125, 0.15) 0%, rgba(108, 117, 125, 0.08) 100%);
     color: #383d41;
     border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+.pedido-badge-estado.status-delivered {
+    background: linear-gradient(135deg, rgba(111, 66, 193, 0.15) 0%, rgba(111, 66, 193, 0.08) 100%);
+    color: #4a1e8a;
+    border: 1px solid rgba(111, 66, 193, 0.3);
 }
 
 /* Total */

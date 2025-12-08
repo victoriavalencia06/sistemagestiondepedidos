@@ -1,22 +1,17 @@
 import React, { useContext, useState, useEffect } from 'react';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import Topbar from '../components/dashboard/Topbar';
 import Sidebar from '../components/dashboard/Sidebar';
 import '../assets/css/Dashboard.css';
 
-// Componentes del dashboard
-import WelcomeCard from '../components/dashboard/WelcomeCard';
-
-// Paginas
-import Categoria from '../pages/Categoria';
-import Pedido from '../pages/Pedido';
-import Producto from '../pages/Producto';
-import Usuario from '../pages/Usuario';
+// Paginas - Ya no las importamos aquí, se manejan por rutas
 import NotFound from '../components/NotFound';
 
 function Dashboard() {
     const { user, logout } = useContext(AuthContext);
-    const [currentScreen, setCurrentScreen] = useState('dashboard');
+    const navigate = useNavigate();
+    const location = useLocation();
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
@@ -26,12 +21,10 @@ function Dashboard() {
             const mobile = window.innerWidth <= 768;
             setIsMobile(mobile);
 
-            // En móvil, cerrar sidebar automáticamente
             if (mobile && mobileMenuOpen) {
                 setMobileMenuOpen(false);
             }
 
-            // En desktop, resetear estado móvil
             if (!mobile) {
                 setMobileMenuOpen(false);
             }
@@ -41,33 +34,37 @@ function Dashboard() {
         return () => window.removeEventListener('resize', handleResize);
     }, [mobileMenuOpen]);
 
-    // Componente principal del dashboard
-    const DashboardContent = () => (
-        <div className="dashboard-content-wrapper">
-            {/* Welcome Card */}
-            <div className="row mb-4">
-                <div className="col-12">
-                    <WelcomeCard user={user} />
-                </div>
-            </div>
-        </div>
-    );
-
-    // Mapa de páginas
-    const pagesMap = {
-        dashboard: <DashboardContent />,
-        pedido: <Pedido />,
-        categoria: <Categoria />,
-        producto: <Producto />,
-        usuario: <Usuario />,
+    // Obtener pantalla actual de la URL
+    const getCurrentScreen = () => {
+        const path = location.pathname;
+        if (path.includes('/dashboard/pedidos')) return 'pedidos';
+        if (path.includes('/dashboard/categorias')) return 'categorias';
+        if (path.includes('/dashboard/productos')) return 'productos';
+        if (path.includes('/dashboard/usuarios')) return 'usuarios';
+        if (path.includes('/dashboard/home')) return 'dashboard';
+        return 'dashboard';
     };
 
-    // Navegación
+    // Navegación usando React Router
     const handleNavigate = (screenId) => {
-        if (pagesMap[screenId]) {
-            setCurrentScreen(screenId);
-        } else {
-            setCurrentScreen(`not-found:${screenId}`);
+        switch(screenId) {
+            case 'dashboard':
+                navigate('/dashboard/home');
+                break;
+            case 'pedidos':
+                navigate('/dashboard/pedidos');
+                break;
+            case 'categorias':
+                navigate('/dashboard/categorias');
+                break;
+            case 'productos':
+                navigate('/dashboard/productos');
+                break;
+            case 'usuarios':
+                navigate('/dashboard/usuarios');
+                break;
+            default:
+                navigate('/dashboard/home');
         }
 
         // En móvil, cerrar sidebar después de navegar
@@ -95,16 +92,7 @@ function Dashboard() {
 
     // Determinar estado del sidebar
     const isSidebarCollapsed = isMobile ? !mobileMenuOpen : sidebarCollapsed;
-
-    // Renderizar contenido
-    const renderContent = () => {
-        if (currentScreen.startsWith('not-found:')) {
-            const missing = currentScreen.split(':')[1];
-            return <NotFound currentScreen={missing} onBack={() => setCurrentScreen('dashboard')} />;
-        }
-
-        return pagesMap[currentScreen] || <NotFound currentScreen={currentScreen} onBack={() => setCurrentScreen('dashboard')} />;
-    };
+    const currentScreen = getCurrentScreen();
 
     return (
         <div className={`dashboard-root ${isSidebarCollapsed && !isMobile ? "sidebar-collapsed" : ""}`}>
@@ -126,7 +114,8 @@ function Dashboard() {
                 />
 
                 <main className="dashboard-content">
-                    {renderContent()}
+                    {/* Outlet renderiza las subrutas definidas en App.js */}
+                    <Outlet />
                 </main>
             </div>
         </div>

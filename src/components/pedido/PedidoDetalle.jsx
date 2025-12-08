@@ -13,7 +13,6 @@ import '../../assets/css/PedidoDetalle.css';
 
 const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = null, loading: loadingProp = false, onClose = null, onCancel = null, onEstadoChange = null }) => {
     const { id: idParam } = useParams();
-    const navigate = useNavigate();
 
     const [pedido, setPedido] = useState(pedidoProp);
     const [loading, setLoading] = useState(!!(!pedidoProp && !loadingProp));
@@ -24,7 +23,6 @@ const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = nul
     const id = pedidoIdProp || idParam;
 
     useEffect(() => {
-        // Si nos pasan un pedido por props, lo usamos y no consultamos
         if (pedidoProp) {
             setPedido(pedidoProp);
             setLoading(false);
@@ -32,19 +30,16 @@ const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = nul
             return;
         }
 
-        // si el padre maneja loading, usarlo como bandera inicial
         if (loadingProp) {
             setLoading(true);
         }
 
-        // Si no hay id, marcar error
         if (!id) {
             setError('No se especificó el pedido');
             setLoading(false);
             return;
         }
 
-        // Si no tenemos pedido, cargarlo
         const loadPedido = async () => {
             setLoading(true);
             setError('');
@@ -83,7 +78,8 @@ const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = nul
         switch (estado.toUpperCase()) {
             case 'PENDIENTE': return 'status-warning';
             case 'PROCESANDO': return 'status-info';
-            case 'COMPLETADO': case 'ENTREGADO': return 'status-success';
+            case 'COMPLETADO': return 'status-success';
+            case 'ENTREGADO': return 'status-delivered';
             case 'CANCELADO': return 'status-inactive';
             default: return 'status-active';
         }
@@ -127,7 +123,6 @@ const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = nul
             const updated = await pedidoService.getById(pedido.idPedido);
             setPedido(updated);
 
-            // Notificar al padre para que recargue la lista si necesita
             if (typeof onEstadoChange === 'function') {
                 try { await onEstadoChange(); } catch (e) { /* ignorar si el padre no implementa */ }
             }
@@ -143,17 +138,11 @@ const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = nul
         window.print();
     };
 
-    const handleVolver = () => {
-        if (typeof onClose === 'function') return onClose();
-        navigate('/pedidos');
-    };
-
     const handleCancelarDesdeDetalle = async () => {
         if (!pedido) return;
         if (typeof onCancel === 'function') {
             return onCancel(pedido.idPedido);
         }
-        // si no hay onCancel, intentar llamar al service directamente
         const result = await alertConfirm(
             "¿Cancelar pedido?",
             "Esta acción anulará el pedido y revertirá el stock de productos. ¿Desea continuar?"
@@ -162,7 +151,6 @@ const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = nul
         try {
             await pedidoService.cancelar(pedido.idPedido);
             alertSuccess("Pedido cancelado", "El pedido fue anulado y el stock revertido.");
-            // actualizar localmente y notificar padre
             const updated = await pedidoService.getById(pedido.idPedido);
             setPedido(updated);
             if (typeof onEstadoChange === 'function') {
@@ -231,9 +219,6 @@ const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = nul
                         </label>
                         <div className="pedido-input-cafe">
                             <div className="pedido-cliente-nombre">{pedido.usuario?.nombre || 'Cliente'}</div>
-                            {pedido.usuario?.email && (
-                                <div className="pedido-cliente-email">{pedido.usuario.email}</div>
-                            )}
                         </div>
                     </div>
 

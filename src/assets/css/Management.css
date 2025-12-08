@@ -386,6 +386,11 @@ input:checked+.slider:before {
     color: var(--danger);
 }
 
+.status-delivered {
+    background: linear-gradient(135deg, rgba(111, 66, 193, 0.15) 0%, rgba(111, 66, 193, 0.08) 100%);
+    color: #4a1e8a;
+}
+
 /* Acciones en tabla */
 .role-actions {
     display: flex;

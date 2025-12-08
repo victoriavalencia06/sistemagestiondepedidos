@@ -15,7 +15,8 @@ const PedidoItem = ({ pedido, usuarios, onView, onCancel }) => {
         switch (estado.toUpperCase()) {
             case 'PENDIENTE': return 'status-warning';
             case 'PROCESANDO': return 'status-info';
-            case 'COMPLETADO': case 'ENTREGADO': return 'status-success';
+            case 'COMPLETADO': return 'status-success';
+            case 'ENTREGADO': return 'status-delivered';
             case 'CANCELADO': return 'status-inactive';
             default: return 'status-active';
         }

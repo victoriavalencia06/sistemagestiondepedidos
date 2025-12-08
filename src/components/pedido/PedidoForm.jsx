@@ -36,7 +36,9 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
             setLoadingUsuarios(true);
             try {
                 const data = await usuarioService.get();
-                setUsuarios(data.filter(u => u.estado == 1));
+                // Filtrar solo usuarios activos (estado == 1) Y con rol cliente (idRol == 2)
+                const clientes = data.filter(u => u.estado == 1 && u.idRol == 2);
+                setUsuarios(clientes);
             } catch (error) {
                 console.error('Error cargando usuarios:', error);
             } finally {
@@ -48,12 +50,12 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
             setLoadingProductos(true);
             try {
                 const data = await productoService.get();
-                // Filtrar productos activos con stock > 0
-                const productosActivos = data.filter(p => 
-                    p.estado == 1 && 
-                    (!p.stock || p.stock > 0)
+                // Filtrar productos activos con stock > 0 O stock null (sin control de stock)
+                const productosDisponibles = data.filter(p =>
+                    p.estado == 1 &&
+                    (p.stock === null || p.stock === undefined || p.stock > 0)
                 );
-                setProductos(productosActivos);
+                setProductos(productosDisponibles);
             } catch (error) {
                 console.error('Error cargando productos:', error);
             } finally {
@@ -69,12 +71,25 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
     const agregarProducto = () => {
         if (!productoSeleccionado || cantidad < 1) return;
 
+        // Validar que haya stock suficiente si el producto tiene control de stock
+        if (productoSeleccionado.stock !== null && productoSeleccionado.stock !== undefined) {
+            // Calcular stock disponible (restando lo ya agregado en el carrito)
+            const productoEnCarrito = detalles.find(d => d.idProducto === productoSeleccionado.idProducto);
+            const cantidadEnCarrito = productoEnCarrito ? productoEnCarrito.cantidad : 0;
+            const stockDisponible = productoSeleccionado.stock - cantidadEnCarrito;
+
+            if (cantidad > stockDisponible) {
+                alert('Stock insuficiente', `Solo hay ${stockDisponible} unidades disponibles de "${productoSeleccionado.nombre}"`);
+                return;
+            }
+        }
+
         const productoExistente = detalles.find(d => d.idProducto === productoSeleccionado.idProducto);
-        
+
         if (productoExistente) {
             // Actualizar cantidad si ya existe
-            setDetalles(detalles.map(d => 
-                d.idProducto === productoSeleccionado.idProducto 
+            setDetalles(detalles.map(d =>
+                d.idProducto === productoSeleccionado.idProducto
                     ? { ...d, cantidad: d.cantidad + cantidad }
                     : d
             ));
@@ -106,12 +121,35 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
             return;
         }
 
-        setDetalles(detalles.map(d => 
-            d.idProducto === idProducto 
-                ? { 
-                    ...d, 
+        const detalle = detalles.find(d => d.idProducto === idProducto);
+        if (!detalle) return;
+
+        // Validar stock si el producto tiene control
+        if (detalle.producto.stock !== null && detalle.producto.stock !== undefined) {
+            // Calcular la diferencia (cuánto se quiere aumentar)
+            const diferencia = nuevaCantidad - detalle.cantidad;
+
+            if (diferencia > 0) { // Si está aumentando la cantidad
+                const otrosDetallesMismoProducto = detalles
+                    .filter(d => d.idProducto === idProducto && d !== detalle);
+                const cantidadEnOtrosDetalles = otrosDetallesMismoProducto
+                    .reduce((sum, d) => sum + d.cantidad, 0);
+
+                const stockDisponible = detalle.producto.stock - cantidadEnOtrosDetalles;
+
+                if (nuevaCantidad > stockDisponible) {
+                    alert('Stock insuficiente', `Solo hay ${stockDisponible} unidades disponibles de "${detalle.producto.nombre}"`);
+                    return;
+                }
+            }
+        }
+
+        setDetalles(detalles.map(d =>
+            d.idProducto === idProducto
+                ? {
+                    ...d,
                     cantidad: nuevaCantidad,
-                    subtotal: d.producto.precio * nuevaCantidad 
+                    subtotal: d.producto.precio * nuevaCantidad
                 }
                 : d
         ));
@@ -125,6 +163,24 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
     const handleFormSubmit = async (data) => {
         if (detalles.length === 0) {
             alert('Error', 'Debe agregar al menos un producto al pedido');
+            return;
+        }
+
+        // Validar stock final antes de enviar
+        const erroresStock = [];
+
+        detalles.forEach(detalle => {
+            if (detalle.producto.stock !== null && detalle.producto.stock !== undefined) {
+                if (detalle.cantidad > detalle.producto.stock) {
+                    erroresStock.push(
+                        `"${detalle.producto.nombre}": Solicitado ${detalle.cantidad}, disponible ${detalle.producto.stock}`
+                    );
+                }
+            }
+        });
+
+        if (erroresStock.length > 0) {
+            alert('Stock insuficiente', `Los siguientes productos no tienen stock suficiente:\n\n${erroresStock.join('\n')}`);
             return;
         }
 
@@ -264,13 +320,18 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
                                     const id = parseInt(e.target.value);
                                     const producto = productos.find(p => p.idProducto === id);
                                     setProductoSeleccionado(producto || null);
+                                    // Resetear cantidad cuando cambia producto
+                                    setCantidad(1);
                                 }}
                                 disabled={isSubmitting || loadingProductos}
                             >
                                 <option value="">Seleccione un producto</option>
                                 {productos.map((producto) => (
                                     <option key={producto.idProducto} value={producto.idProducto}>
-                                        {producto.nombre} - S/ {producto.precio} {producto.stock ? `(Stock: ${producto.stock})` : ''}
+                                        {producto.nombre} - S/ {producto.precio}
+                                        {producto.stock !== null && producto.stock !== undefined
+                                            ? ` (Stock: ${producto.stock})`
+                                            : ' (Sin control de stock)'}
                                     </option>
                                 ))}
                             </select>
@@ -289,7 +350,7 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
                                 onChange={(e) => setCantidad(parseInt(e.target.value) || 1)}
                                 disabled={isSubmitting || !productoSeleccionado}
                             />
-                            {productoSeleccionado && productoSeleccionado.stock && (
+                            {productoSeleccionado && productoSeleccionado.stock !== null && productoSeleccionado.stock !== undefined && (
                                 <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
                                     Stock disponible: {productoSeleccionado.stock}
                                 </div>
@@ -301,7 +362,9 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
                                 type="button"
                                 onClick={agregarProducto}
                                 className="btn-management"
-                                disabled={isSubmitting || !productoSeleccionado || cantidad < 1}
+                                disabled={isSubmitting || !productoSeleccionado || cantidad < 1 ||
+                                    (productoSeleccionado.stock !== null && productoSeleccionado.stock !== undefined &&
+                                        productoSeleccionado.stock === 0)}
                                 style={{ padding: '8px 16px' }}
                             >
                                 <FaPlus /> Agregar
@@ -330,6 +393,11 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
                                                     <div className="role-badge">
                                                         <FaBox />
                                                         {detalle.producto.nombre}
+                                                        {detalle.producto.stock !== null && detalle.producto.stock !== undefined && (
+                                                            <span style={{ fontSize: '11px', marginLeft: '8px', color: 'var(--muted)' }}>
+                                                                (Stock: {detalle.producto.stock})
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </td>

@@ -5,9 +5,6 @@ import {
   FaBox,
   FaUsers,
   FaCog,
-  FaClipboardList,
-  FaUserTie,
-  FaUser,
   FaTag
 } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
@@ -28,31 +25,29 @@ export default function Sidebar({
     switch (userRole) {
       case "1": // Administrador
         return [
-          { id: "dashboard", label: "Dashboard", icon: FaTachometerAlt },
-          { id: "pedido", label: "Pedidos", icon: FaShoppingCart },
-          { id: "categoria", label: "Categorias", icon: FaTag },
-          { id: "producto", label: "Productos", icon: FaBox },
-          { id: "usuario", label: "Usuarios", icon: FaUsers },
-          { id: "configuracion", label: "Configuración", icon: FaCog }
+          { id: "dashboard", label: "Dashboard", icon: FaTachometerAlt, path: "/dashboard/home" },
+          { id: "pedidos", label: "Pedidos", icon: FaShoppingCart, path: "/dashboard/pedidos" },
+          { id: "categorias", label: "Categorias", icon: FaTag, path: "/dashboard/categorias" },
+          { id: "productos", label: "Productos", icon: FaBox, path: "/dashboard/productos" },
+          { id: "usuarios", label: "Usuarios", icon: FaUsers, path: "/dashboard/usuarios" },
         ];
 
       case "2": // Cliente
         return [
-          { id: "dashboard", label: "Mi Panel", icon: FaTachometerAlt },
-          { id: "pedidos", label: "Mis Pedidos", icon: FaShoppingCart },
-          { id: "productos", label: "Catálogo", icon: FaBox },
+          { id: "dashboard", label: "Mi Panel", icon: FaTachometerAlt, path: "/dashboard/home" },
+          { id: "pedidos", label: "Mis Pedidos", icon: FaShoppingCart, path: "/dashboard/pedidos" },
         ];
 
       case "3": // Empleado
         return [
-          { id: "dashboard", label: "Dashboard", icon: FaTachometerAlt },
-          { id: "pedidos", label: "Pedidos", icon: FaShoppingCart },
-          { id: "productos", label: "Productos", icon: FaBox },
+          { id: "dashboard", label: "Dashboard", icon: FaTachometerAlt, path: "/dashboard/home" },
+          { id: "pedidos", label: "Pedidos", icon: FaShoppingCart, path: "/dashboard/pedidos" },
+          { id: "productos", label: "Productos", icon: FaBox, path: "/dashboard/productos" },
         ];
 
       default:
         return [
-          { id: "dashboard", label: "Dashboard", icon: FaTachometerAlt }
+          { id: "dashboard", label: "Dashboard", icon: FaTachometerAlt, path: "/dashboard/home" }
         ];
     }
   };
@@ -70,15 +65,6 @@ export default function Sidebar({
 
   const menuItems = getMenuItems();
   const roleName = getRoleName();
-
-  // Función para manejar clic en items
-  const handleItemClick = (screenId) => {
-    onNavigate(screenId);
-    // En móvil, cerrar sidebar después de navegar
-    if (window.innerWidth <= 768) {
-      onCloseMobile();
-    }
-  };
 
   return (
     <>
@@ -102,7 +88,7 @@ export default function Sidebar({
             return (
               <button
                 key={item.id}
-                onClick={() => handleItemClick(item.id)}
+                onClick={() => onNavigate(item.id)}
                 className={`sidebar-item ${isActive ? "active" : ""}`}
                 title={collapsed && !isMobileOpen ? item.label : ""}
               >

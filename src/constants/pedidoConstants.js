@@ -2,8 +2,8 @@ export const TIPOS_PAGO = [
     { value: 'EFECTIVO', label: 'Efectivo' },
     { value: 'TARJETA', label: 'Tarjeta' },
     { value: 'TRANSFERENCIA', label: 'Transferencia' },
-    { value: 'YAPE', label: 'Yape' },
-    { value: 'PLIN', label: 'Plin' },
+    { value: 'APPLE PAY', label: 'Apple Pay' },
+    { value: 'PAYPAL', label: 'PayPal' },
     { value: 'OTRO', label: 'Otro' }
 ];
 
