@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { FaPlus, FaSearch, FaShoppingCart, FaExclamationCircle, FaFilter, FaArrowLeft } from 'react-icons/fa';
 import PedidoList from '../components/pedido/PedidoList';
 import PedidoForm from '../components/pedido/PedidoForm';
 import PedidoDetalle from '../components/pedido/PedidoDetalle';
 import pedidoService from '../services/pedidoService';
 import usuarioService from '../services/usuarioService';
+import { AuthContext } from '../context/AuthContext';
 import '../assets/css/Management.css';
 import { alertSuccess, alertError, alertConfirm } from "../utils/alerts";
 import { ESTADOS_PEDIDO } from '../constants/pedidoConstants';
@@ -17,24 +18,50 @@ const Pedidos = () => {
     const [showDetalle, setShowDetalle] = useState(false);
     const [selectedPedido, setSelectedPedido] = useState(null);
     const [detalleLoading, setDetalleLoading] = useState(false);
-    const [usuarios, setUsuarios] = useState({}); // Nuevo estado para el mapa de usuarios
-    const [usuariosLoading, setUsuariosLoading] = useState(false); // Loading para usuarios
+    const [usuarios, setUsuarios] = useState({});
+    const [usuariosLoading, setUsuariosLoading] = useState(false);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
     const [estadoFilter, setEstadoFilter] = useState('');
 
-    // Cargar pedidos y usuarios
+    // Obtener el usuario del contexto
+    const { user } = useContext(AuthContext);
+
+    // Cargar pedidos
     const loadPedidos = async () => {
         setLoading(true);
         setError('');
         try {
-            const data = await pedidoService.get();
+            let data;
+
+            // Si el usuario es rol 2 (cliente), cargar solo sus pedidos
+            if (user?.idRol === 2) {
+                // Filtrar en frontend (solución más simple)
+                const todosPedidos = await pedidoService.get();
+                data = todosPedidos.filter(pedido =>
+                    pedido.idUsuario === user.idUsuario
+                );
+            } else {
+                // Para otros roles, cargar todos los pedidos
+                data = await pedidoService.get();
+            }
+
             setPedidos(data);
 
-            // Después de cargar pedidos, cargar usuarios
-            await loadUsuarios(data);
+            // Después de cargar pedidos, cargar usuarios (solo si no es cliente)
+            if (user?.idRol !== 2) {
+                await loadUsuarios(data);
+            } else {
+                // Si es cliente, no necesitamos cargar usuarios, solo su info
+                setUsuarios({
+                    [user.idUsuario]: {
+                        nombre: user.nombre,
+                        email: user.email
+                    }
+                });
+            }
         } catch (err) {
             setError(err.message || 'Error al cargar los pedidos');
             console.error('Error cargando pedidos:', err);
@@ -56,7 +83,7 @@ const Pedidos = () => {
                 return;
             }
 
-            // intentar cargar todos los usuarios de una vez si existe un método bulk
+            // Intentar cargar todos los usuarios de una vez si existe un método bulk
             try {
                 const usuariosData = await usuarioService.getById(idsUsuarios);
 
@@ -73,7 +100,7 @@ const Pedidos = () => {
 
                 setUsuarios(usuariosMap);
             } catch (bulkError) {
-                // si no hay método bulk, cargar individualmente
+                // Si no hay método bulk, cargar individualmente
                 const usuariosPromises = idsUsuarios.map(id =>
                     usuarioService.getById(id)
                         .then(usuario => ({
@@ -111,8 +138,10 @@ const Pedidos = () => {
     };
 
     useEffect(() => {
-        loadPedidos();
-    }, []);
+        if (user) {
+            loadPedidos();
+        }
+    }, [user]);
 
     // Filtrado y paginación
     const filteredPedidos = useMemo(() => {
@@ -160,7 +189,7 @@ const Pedidos = () => {
         }
     }, [totalPages, currentPage]);
 
-    // Handlers (mantener iguales)
+    // Handlers
     const handleCreate = () => {
         setShowForm(true);
         setShowDetalle(false);
@@ -174,7 +203,7 @@ const Pedidos = () => {
         setShowForm(false);
 
         try {
-            // Cargar pedido completo con detalles desde la API
+            // Cargar pedido completo
             const data = await pedidoService.getById(pedido.idPedido);
             setSelectedPedido(data);
         } catch (err) {
@@ -322,9 +351,10 @@ const Pedidos = () => {
                     <>
                         <h1 className="management-title">
                             <FaShoppingCart style={{ marginRight: 8 }} />
-                            {showForm ? 'Crear Nuevo Pedido' : 'Gestión de Pedidos'}
+                            {showForm ? 'Crear Nuevo Pedido' : (user?.idRol === 2 ? 'Mis Pedidos' : 'Gestión de Pedidos')}
                         </h1>
-                        {!showForm && (
+                        {/* Boton visible solo para administradores y empleados */}
+                        {!showForm && user?.idRol !== 2 && (
                             <button onClick={handleCreate} className="btn-management">
                                 <FaPlus /> Nuevo Pedido
                             </button>
@@ -388,10 +418,11 @@ const Pedidos = () => {
                 <>
                     <PedidoList
                         pedidos={currentPagePedidos}
-                        loading={loading || usuariosLoading} // Combinar ambos loadings
-                        usuarios={usuarios} // Pasar mapa de usuarios
+                        loading={loading || usuariosLoading}
+                        usuarios={usuarios}
                         onView={handleView}
                         onCancel={handleCancel}
+                        usuarioLogueado={user}
                     />
                     <Pagination />
                 </>

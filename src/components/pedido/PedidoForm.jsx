@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaShoppingCart, FaSave, FaPlus, FaTimes, FaExclamationCircle, FaTrash, FaSearch, FaBox, FaMoneyBill, FaUser } from 'react-icons/fa';
 import { alertConfirm } from "../../utils/alerts";
 import usuarioService from '../../services/usuarioService';
 import productoService from '../../services/productoService';
+import { AuthContext } from '../../context/AuthContext';
 import { TIPOS_PAGO, ESTADOS_PEDIDO } from '../../constants/pedidoConstants';
 
 const PedidoForm = ({ onSubmit, onCancel }) => {
@@ -30,15 +31,29 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
     const [loadingUsuarios, setLoadingUsuarios] = useState(false);
     const [loadingProductos, setLoadingProductos] = useState(false);
 
+    // Obtener el usuario del contexto
+    const { user } = useContext(AuthContext);
+
     // Cargar usuarios y productos
     useEffect(() => {
         const loadUsuarios = async () => {
             setLoadingUsuarios(true);
             try {
-                const data = await usuarioService.get();
-                // Filtrar solo usuarios activos (estado == 1) Y con rol cliente (idRol == 2)
-                const clientes = data.filter(u => u.estado == 1 && u.idRol == 2);
-                setUsuarios(clientes);
+                // Si el usuario es cliente (idRol === 2), no cargar lista de usuarios
+                if (user?.idRol === 2) {
+                    // Autoseleccionar al usuario actual
+                    setValue('idUsuario', user.idUsuario);
+                    setUsuarios([{
+                        idUsuario: user.idUsuario,
+                        nombre: user.nombre,
+                        email: user.email
+                    }]);
+                } else {
+                    // Para otros roles, cargar todos los clientes
+                    const data = await usuarioService.get();
+                    const clientes = data.filter(u => u.estado == 1 && u.idRol == 2);
+                    setUsuarios(clientes);
+                }
             } catch (error) {
                 console.error('Error cargando usuarios:', error);
             } finally {
@@ -65,7 +80,7 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
 
         loadUsuarios();
         loadProductos();
-    }, []);
+    }, [user, setValue]);
 
     // Agregar producto a detalles
     const agregarProducto = () => {
@@ -232,17 +247,25 @@ const PedidoForm = ({ onSubmit, onCancel }) => {
                         <select
                             id="idUsuario"
                             className={`form-control ${errors.idUsuario ? 'error' : ''}`}
-                            disabled={isSubmitting || loadingUsuarios}
+                            disabled={isSubmitting || loadingUsuarios || user?.idRol === 2}
                             {...register('idUsuario', {
                                 required: 'El cliente es requerido'
                             })}
                         >
-                            <option value="">Seleccione un cliente</option>
-                            {usuarios.map((usuario) => (
-                                <option key={usuario.idUsuario} value={usuario.idUsuario}>
-                                    {usuario.nombre} ({usuario.email})
+                            {user?.idRol === 2 ? (
+                                <option value={user.idUsuario}>
+                                    {user.nombre} ({user.email})
                                 </option>
-                            ))}
+                            ) : (
+                                <>
+                                    <option value="">Seleccione un cliente</option>
+                                    {usuarios.map((usuario) => (
+                                        <option key={usuario.idUsuario} value={usuario.idUsuario}>
+                                            {usuario.nombre} ({usuario.email})
+                                        </option>
+                                    ))}
+                                </>
+                            )}
                         </select>
                         {errors.idUsuario && (
                             <div className="form-error">

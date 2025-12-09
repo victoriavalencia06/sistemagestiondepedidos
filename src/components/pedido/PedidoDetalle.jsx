@@ -222,7 +222,7 @@ const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = nul
                         </div>
                     </div>
 
-                    {/* Estado */}
+                    {/* Estado 
                     <div className="pedido-field-group">
                         <label className="pedido-field-label">
                             <FaHistory size={14} /> Estado
@@ -232,7 +232,7 @@ const PedidoDetalle = ({ pedido: pedidoProp = null, pedidoId: pedidoIdProp = nul
                                 {getEstadoLabel(pedido.estado)}
                             </span>
                         </div>
-                    </div>
+                    </div> */}
 
                     {/* Tipo de Pago */}
                     <div className="pedido-field-group">

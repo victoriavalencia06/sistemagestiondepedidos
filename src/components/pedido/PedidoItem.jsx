@@ -2,7 +2,7 @@ import React from 'react';
 import { FaEye, FaTimesCircle, FaMoneyBill, FaUser } from 'react-icons/fa';
 import { getTipoPagoLabel, getEstadoLabel } from '../../constants/pedidoConstants';
 
-const PedidoItem = ({ pedido, usuarios, onView, onCancel }) => {
+const PedidoItem = ({ pedido, usuarios, onView, onCancel, esCliente }) => {
     // Obtener información del usuario del mapa
     const usuarioInfo = usuarios && usuarios[pedido.idUsuario] 
         ? usuarios[pedido.idUsuario]
@@ -31,15 +31,17 @@ const PedidoItem = ({ pedido, usuarios, onView, onCancel }) => {
                 </div>
             </td>
 
-            <td>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-    <div className="role-badge">
-        <FaUser />
-        {usuarioInfo.nombre}
-    </div>
-</div>
-
-            </td>
+            {/* MOSTRAR CELDA DE CLIENTE SOLO SI NO ES CLIENTE */}
+            {!esCliente && (
+                <td>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <div className="role-badge">
+                            <FaUser />
+                            {usuarioInfo.nombre}
+                        </div>
+                    </div>
+                </td>
+            )}
 
             <td>
                 <div>
