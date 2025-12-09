@@ -4,7 +4,7 @@ import {
   FaShoppingCart,
   FaBox,
   FaUsers,
-  FaCog,
+  FaUserTag,
   FaTag
 } from "react-icons/fa";
 import { AuthContext } from "../../context/AuthContext";
@@ -30,6 +30,7 @@ export default function Sidebar({
           { id: "categorias", label: "Categorias", icon: FaTag, path: "/dashboard/categorias" },
           { id: "productos", label: "Productos", icon: FaBox, path: "/dashboard/productos" },
           { id: "usuarios", label: "Usuarios", icon: FaUsers, path: "/dashboard/usuarios" },
+          { id: "roles", label: "Roles", icon: FaUserTag, path: "/dashboard/roles" },
         ];
 
       case "2": // Cliente

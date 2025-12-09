@@ -1,4 +1,4 @@
-// src/pages/Producto.jsx (REEMPLAZA tu archivo actual)
+// src/pages/Producto.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { FaPlus, FaSearch, FaBox, FaExclamationCircle } from 'react-icons/fa';
 import ProductoList from '../components/producto/ProductoList';
@@ -17,6 +17,9 @@ const Producto = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
+
+    // Constante para definir stock bajo
+    const STOCK_BAJO_LIMITE = 5;
 
     // Filtrado y paginación
     const filteredProductos = useMemo(() => {
@@ -175,12 +178,23 @@ const Producto = () => {
         );
     };
 
-    // Calcular estadísticas
+    // Calcular estadísticas - CORREGIDO
     const stats = useMemo(() => {
         const totalProductos = productos.length;
-        const productosActivos = productos.filter(p => p.estado == 1).length;
-        const productosStockBajo = productos.filter(p => p.stock > 0 && p.stock <= 10).length;
-        const productosAgotados = productos.filter(p => p.stock == 0).length;
+        const productosActivos = productos.filter(p => p.estado === 1 || p.estado === true).length;
+
+        // CORRECCIÓN: Solo productos con stock bajo y ACTIVOS
+        const productosStockBajo = productos.filter(p =>
+            (p.estado === 1 || p.estado === true) &&
+            p.stock > 0 &&
+            p.stock <= STOCK_BAJO_LIMITE
+        ).length;
+
+        // CORRECCIÓN: Solo productos con stock 0 y ACTIVOS
+        const productosAgotados = productos.filter(p =>
+            (p.estado === 1 || p.estado === true) &&
+            p.stock === 0
+        ).length;
 
         return {
             totalProductos,
@@ -205,7 +219,7 @@ const Producto = () => {
 
             {!showForm && (
                 <>
-                    {/* Tarjetas de estadísticas - Versión mejorada */}
+                    {/* Tarjetas de estadísticas */}
                     <div className="stats-cards">
                         <div className="stats-card stats-card-total">
                             <div className="stats-icon-circle stats-icon-circle-total">
@@ -228,7 +242,7 @@ const Producto = () => {
                                 <span style={{ fontSize: '20px', fontWeight: 'bold' }}>!</span>
                             </div>
                             <h3 className="stats-card-value">{stats.productosStockBajo}</h3>
-                            <p className="stats-card-label">Stock Bajo</p>
+                            <p className="stats-card-label">Stock Bajo (≤ {STOCK_BAJO_LIMITE})</p>
                         </div>
 
                         <div className="stats-card stats-card-agotados">

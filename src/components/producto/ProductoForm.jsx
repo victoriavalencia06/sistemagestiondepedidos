@@ -30,7 +30,7 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
             setLoadingCategorias(true);
             try {
                 const data = await categoriaService.get();
-                // Filtrar solo categorías activas
+                // Solo categorías activas
                 const categoriasActivas = data.filter(cat => cat.estado == 1);
                 setCategorias(categoriasActivas);
             } catch (error) {
@@ -39,19 +39,21 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
                 setLoadingCategorias(false);
             }
         };
-
         loadCategorias();
     }, []);
 
-    // Resetear formulario cuando cambia el producto
+    // Resetear formulario cuando cambia el producto - CORREGIDO
     useEffect(() => {
         if (producto) {
             reset({
                 idCategoria: producto.idCategoria || producto.categoria?.idCategoria || '',
                 nombre: producto.nombre || '',
                 descripcion: producto.descripcion || '',
-                precio: producto.precio || '',
-                stock: producto.stock || '',
+                precio: producto.precio?.toString() || '',
+                // CORRECCIÓN: Manejar stock=0 correctamente
+                stock: producto.stock !== null && producto.stock !== undefined
+                    ? producto.stock.toString()
+                    : '',
                 estado: producto.estado ?? true
             });
         } else {
@@ -72,20 +74,18 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
             nombre: data.nombre.trim(),
             descripcion: data.descripcion.trim() || null,
             precio: parseFloat(data.precio),
-            stock: data.stock ? parseInt(data.stock) : null,
+            // CORRECCIÓN: Stock vacío = 0, no null
+            stock: data.stock !== '' ? parseInt(data.stock, 10) : 0,
             estado: data.estado
         };
 
-        // Si estamos editando y vamos a desactivar, mostrar confirmación
+        // Confirmación para desactivar
         if (producto && !data.estado) {
             const result = await alertConfirm(
                 "¿Desactivar producto?",
                 "Un producto inactivo no estará disponible para ventas."
             );
-
-            if (!result.isConfirmed) {
-                return;
-            }
+            if (!result.isConfirmed) return;
         }
 
         await onSubmit(payload);
@@ -99,7 +99,6 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
             );
             if (!result.isConfirmed) return;
         }
-
         onCancel();
     };
 
@@ -156,18 +155,12 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
                             type="text"
                             id="nombre"
                             className={`form-control ${errors.nombre ? 'error' : ''}`}
-                            placeholder="Ej: Café Americano, Sandwich de Jamón, Torta de Chocolate..."
+                            placeholder="Ej: Café Americano, Sandwich de Jamón..."
                             disabled={isSubmitting}
                             {...register('nombre', {
                                 required: 'El nombre es requerido',
-                                minLength: {
-                                    value: 2,
-                                    message: 'El nombre debe tener al menos 2 caracteres'
-                                },
-                                maxLength: {
-                                    value: 100,
-                                    message: 'El nombre no puede exceder 100 caracteres'
-                                }
+                                minLength: { value: 2, message: 'Mínimo 2 caracteres' },
+                                maxLength: { value: 100, message: 'Máximo 100 caracteres' }
                             })}
                         />
                         {errors.nombre && (
@@ -196,10 +189,7 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
                             disabled={isSubmitting}
                             {...register('precio', {
                                 required: 'El precio es requerido',
-                                min: {
-                                    value: 0,
-                                    message: 'El precio no puede ser negativo'
-                                },
+                                min: { value: 0, message: 'No puede ser negativo' },
                                 valueAsNumber: true
                             })}
                         />
@@ -219,15 +209,17 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
                             type="number"
                             id="stock"
                             min="0"
+                            step="1"
                             className={`form-control ${errors.stock ? 'error' : ''}`}
                             placeholder="0"
                             disabled={isSubmitting}
                             {...register('stock', {
-                                min: {
-                                    value: 0,
-                                    message: 'El stock no puede ser negativo'
-                                },
-                                valueAsNumber: true
+                                min: { value: 0, message: 'No puede ser negativo' },
+                                // Validación para enteros
+                                validate: value =>
+                                    value === '' ||
+                                    Number.isInteger(Number(value)) ||
+                                    'Debe ser número entero'
                             })}
                         />
                         <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>
@@ -242,7 +234,7 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
                     </div>
                 </div>
 
-                {/* Tercera fila: Descripción (ocupa toda la fila) */}
+                {/* Tercera fila: Descripción */}
                 <div className="form-group">
                     <label htmlFor="descripcion" className="form-label">
                         <FaClipboardList style={{ marginRight: 6 }} />
@@ -255,10 +247,7 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
                         rows={3}
                         disabled={isSubmitting}
                         {...register('descripcion', {
-                            maxLength: {
-                                value: 500,
-                                message: 'La descripción no puede exceder 500 caracteres'
-                            }
+                            maxLength: { value: 500, message: 'Máximo 500 caracteres' }
                         })}
                     />
                     {errors.descripcion && (
@@ -269,7 +258,7 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
                     )}
                 </div>
 
-                {/* Estado (solo cuando se edita) */}
+                {/* Estado (solo en edición) */}
                 {producto ? (
                     <div className="form-group">
                         <label className="form-label">Estado del Producto</label>
@@ -287,15 +276,15 @@ const ProductoForm = ({ producto, onSubmit, onCancel }) => {
                                 Activar/Desactivar producto
                             </span>
                         </div>
-
                         <div className="inline-warning" role="status">
-                            <strong>Atención:</strong> Un producto inactivo no estará disponible para ventas.
+                            <strong>Atención:</strong> Producto inactivo no disponible para ventas.
                         </div>
                     </div>
                 ) : (
                     <input type="hidden" {...register('estado')} value="true" />
                 )}
 
+                {/* Botones de acción */}
                 <div className="form-actions">
                     <button
                         type="button"

@@ -41,6 +41,7 @@ function Dashboard() {
         if (path.includes('/dashboard/categorias')) return 'categorias';
         if (path.includes('/dashboard/productos')) return 'productos';
         if (path.includes('/dashboard/usuarios')) return 'usuarios';
+        if (path.includes('/dashboard/roles')) return 'roles';
         if (path.includes('/dashboard/home')) return 'dashboard';
         return 'dashboard';
     };
@@ -62,6 +63,9 @@ function Dashboard() {
                 break;
             case 'usuarios':
                 navigate('/dashboard/usuarios');
+                break;
+            case 'roles':
+                navigate('/dashboard/roles');
                 break;
             default:
                 navigate('/dashboard/home');

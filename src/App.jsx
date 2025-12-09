@@ -11,6 +11,7 @@ import Pedido from "./pages/Pedido";
 import Categoria from "./pages/Categoria";
 import Producto from "./pages/Producto";
 import Usuario from "./pages/Usuario";
+import Roles from "./pages/Roles";
 
 // Componentes del dashboard
 import WelcomeCard from "./components/dashboard/WelcomeCard";
@@ -38,6 +39,7 @@ export default function App() {
                 <Route path="categorias" element={<Categoria />} />
                 <Route path="productos" element={<Producto />} />
                 <Route path="usuarios" element={<Usuario />} />
+                <Route path="roles" element={<Roles />} />
             </Route>
 
             {/* Redirección por defecto */}
