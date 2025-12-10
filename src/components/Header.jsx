@@ -24,11 +24,17 @@ const Header = ({
 
     const scrollToSection = (sectionId) => {
         const element = document.getElementById(sectionId);
+        
         if (element) {
-            window.scrollTo({
-                top: element.offsetTop - 80,
-                behavior: 'smooth'
+            const header = document.querySelector('header');
+            const headerHeight = header ? header.offsetHeight : 100;
+            
+            // Usar scrollIntoView que es más fiable
+            element.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
             });
+            
             if (isMobile) {
                 onToggleMenu(false);
             }

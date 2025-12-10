@@ -449,6 +449,15 @@ section {
   margin-bottom: 1rem;
 }
 
+.events-subtitle {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto 3rem auto; /* Aumenté el margin-bottom a 4rem */
+  line-height: 1.6;
+  font-weight: 400;
+}
+
 .event-description {
   color: #666;
   margin-bottom: 1.5rem;
