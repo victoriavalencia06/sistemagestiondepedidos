@@ -133,7 +133,6 @@ const Home = () => {
                             </div>
                         </div>
                         <div className="hero-image">
-                            [Imagen de café y postres]
                         </div>
                     </div>
                 </div>

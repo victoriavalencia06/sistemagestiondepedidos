@@ -15,7 +15,7 @@ const AboutUs = () => {
                             únicos que deleitan todos los sentidos.</p>
                     </div>
                     <div className="about-image">
-                        [Imagen del local o equipo]
+                        <img src="https://raw.githubusercontent.com/victoriavalencia06/project-images/refs/heads/main/coffeeShop/sobreNosotros.png" alt="Nuestro local" />
                     </div>
                 </div>
             </div>

@@ -6,19 +6,22 @@ const MenuSection = () => {
             id: 1,
             title: "Cappuccino Artesanal",
             description: "Café espresso con leche vaporizada y una capa de espuma cremosa, decorado con arte latte.",
-            price: "$4.50"
+            price: "$4.50",
+            image: 'https://raw.githubusercontent.com/victoriavalencia06/project-images/refs/heads/main/coffeeShop/Cappuccino.png'
         },
         {
             id: 2,
             title: "Croissant de Almendra",
             description: "Hojaldre crujiente relleno de crema de almendras y espolvoreado con azúcar glass.",
-            price: "$3.75"
+            price: "$3.75",
+            image: 'https://raw.githubusercontent.com/victoriavalencia06/project-images/refs/heads/main/coffeeShop/Croissant-de-Almendra.png'
         },
         {
             id: 3,
             title: "Tarta de Queso",
             description: "Nuestra especialidad: base de galleta, cremosa mezcla de queso y topping de frutos rojos.",
-            price: "$5.20"
+            price: "$5.20",
+            image: 'https://raw.githubusercontent.com/victoriavalencia06/project-images/refs/heads/main/coffeeShop/Tarta-de-Queso.png'
         }
     ];
 
@@ -30,7 +33,7 @@ const MenuSection = () => {
                     {menuItems.map(item => (
                         <div className="menu-card" key={item.id}>
                             <div className="menu-image">
-                                [Imagen de {item.title}]
+                                <img src={item.image} alt={item.title} />
                             </div>
                             <div className="menu-content">
                                 <h3 className="menu-title">{item.title}</h3>
