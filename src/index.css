@@ -775,7 +775,6 @@ footer {
 
 /* ===== RESPONSIVE STYLES ===== */
 @media (max-width: 992px) {
-
   .menu-grid,
   .events-content {
     grid-template-columns: repeat(2, 1fr);
@@ -791,27 +790,121 @@ footer {
 }
 
 @media (max-width: 768px) {
+  .header-content {
+    position: relative;
+    padding: 0.5rem 0;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+    flex: 1;
+    text-align: center;
+    margin-right: 40px; /* Espacio para el hamburger */
+  }
+
   .hamburger {
     display: flex;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1001;
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+  }
+
+  .hamburger svg {
+    font-size: 1.5rem;
+    color: var(--dark-text);
+  }
+
+  .hamburger:hover svg {
+    color: var(--primary-color);
+  }
+
+  /* Ocultar botones de auth en header en móvil */
+  .auth-buttons {
+    display: none;
   }
 
   .nav-menu {
     position: fixed;
-    top: 70px;
-    right: -100%;
-    flex-direction: column;
-    background-color: white;
+    top: 0;
+    left: -100%;
     width: 80%;
-    max-width: 300px;
-    height: calc(100vh - 70px);
-    padding: 2rem;
+    max-width: 280px;
+    height: 100vh;
+    background-color: white;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
     box-shadow: var(--shadow);
-    transition: right 0.3s ease;
-    z-index: 999;
+    transition: left 0.3s ease;
+    z-index: 1000;
+    margin: 0;
+    justify-content: flex-start;
   }
 
   .nav-menu.active {
-    right: 0;
+    left: 0;
+  }
+
+  .nav-menu li {
+    width: 100%;
+    margin-top: 1rem;
+  }
+
+  .nav-menu a {
+    display: block;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid #eee;
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .nav-menu a:hover {
+    color: var(--primary-color);
+    background-color: rgba(176, 90, 44, 0.05);
+  }
+
+  /* Botones de auth en menú móvil */
+  .mobile-auth-buttons {
+    border-top: 1px solid #eee;
+    width: 100%;
+  }
+
+  .mobile-auth-buttons .login-btn,
+  .mobile-auth-buttons .register-btn {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 0.8rem;
+  }
+
+  /* User menu en móvil */
+  .user-menu {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .user-info {
+    width: 100%;
+    justify-content: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .logout-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.8rem;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+  }
+
+  .logout-btn:hover {
+    background-color: #e9ecef;
   }
 
   .hero-content,
@@ -831,31 +924,9 @@ footer {
   .hero-title {
     font-size: 2.5rem;
   }
-
-  .auth-buttons {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .login-btn,
-  .register-btn {
-    justify-content: center;
-  }
-
-  .user-menu {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
-
-  .user-info {
-    justify-content: center;
-  }
 }
 
 @media (max-width: 576px) {
-
   .menu-grid,
   .events-content,
   .gallery-grid {
@@ -882,6 +953,16 @@ footer {
 
   .section-title {
     font-size: 2rem;
+  }
+
+  /* Para pantallas muy pequeñas */
+  .logo {
+    font-size: 1.7rem;
+    margin-right: 50px;
+  }
+
+  .nav-menu {
+    width: 85%;
   }
 }
 
@@ -944,18 +1025,4 @@ footer {
     transform: translateX(0);
     opacity: 1;
   }
-}
-
-/* ===== FORGOT PASSWORD LINK ===== */
-.forgot-password {
-  display: block;
-  text-align: center;
-  margin-top: 1.5rem;
-  color: var(--primary-color);
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-
-.forgot-password:hover {
-  text-decoration: underline;
 }
