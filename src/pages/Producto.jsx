@@ -207,9 +207,11 @@ const Producto = () => {
     return (
         <div className="management-container">
             <div className="management-header">
-                <div>
-                    <h1 className="management-title">Gestión de Productos</h1>
-                </div>
+                <h1 className="management-title">
+                    <FaBox style={{ marginRight: 8 }} />
+                    Gestión de Productos
+                </h1>
+
                 {!showForm && (
                     <button onClick={handleCreate} className="btn-management">
                         <FaPlus style={{ marginRight: 6 }} /> Nuevo Producto

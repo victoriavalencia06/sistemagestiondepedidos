@@ -860,6 +860,240 @@ textarea.form-control {
     border-bottom: 2px solid var(--primary-light);
 }
 
+/* ===== REPORTE LIST ===== */
+.table-filters-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.search-input-pedidos {
+    position: relative;
+    flex: 1;
+    min-width: 300px;
+}
+
+.search-input-pedidos input {
+    width: 100%;
+    padding: 12px 16px 12px 40px;
+    border: 1px solid var(--border, #ddd);
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    transition: .15s ease;
+    color: var(--dark, #333);
+}
+
+.search-input-pedidos .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted, #999);
+}
+
+.search-input-pedidos input:focus {
+    border-color: var(--accent, #B05A2C);
+    box-shadow: 0 0 0 3px var(--accent-soft, rgba(176, 90, 44, 0.1));
+    outline: none;
+}
+
+/* Contenedor de filtros a la derecha */
+.filters-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Select */
+.filter-select-pedidos select {
+    padding: 8px 12px;
+    border: 1px solid var(--border, #ddd);
+    border-radius: 8px;
+    background: white;
+    min-width: 200px;
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.filter-select-pedidos {
+    position: relative;
+}
+
+.filter-select-pedidos::after {
+    content: "▾";
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--muted, #999);
+    font-size: 18px;
+}
+
+.filter-select-pedidos select:hover {
+    border-color: var(--accent, #B05A2C);
+    box-shadow: 0 0 0 2px var(--accent-soft, rgba(176, 90, 44, 0.1));
+}
+
+.filter-select-pedidos select:focus {
+    outline: none;
+    border-color: var(--accent, #B05A2C);
+    box-shadow: 0 0 0 3px var(--accent-soft, rgba(176, 90, 44, 0.1));
+}
+
+/* ===== REPORTE DETAILS CARD ===== */
+.management-details-card {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-top: 1.5rem;
+}
+
+.details-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #eee;
+}
+
+.details-card-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--dark-text, #2F2F2F);
+    display: flex;
+    align-items: center;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    color: var(--primary-color, #B05A2C);
+}
+
+.details-card-body {
+    padding: 2rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #666;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+}
+
+.info-value {
+    color: var(--dark-text, #2F2F2F);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.details-card-description {
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+}
+
+.description-label {
+    font-weight: 600;
+    color: #666;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.description-content {
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 8px;
+    line-height: 1.6;
+    color: #555;
+    white-space: pre-line;
+}
+
+.details-card-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+/* ===== REPORTE ITEM STYLES ===== */
+.reporte-usuario, .reporte-pedido {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--dark-text, #2F2F2F);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table-filters-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-input-pedidos {
+        min-width: 100%;
+    }
+    
+    .filters-right {
+        width: 100%;
+        justify-content: stretch;
+    }
+    
+    .filter-select-pedidos {
+        flex: 1;
+    }
+    
+    .filter-select-pedidos select {
+        min-width: 100%;
+        width: 100%;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .details-card-footer {
+        flex-direction: column;
+    }
+}
+
 @media (max-width: 480px) {
     .stats-cards {
         grid-template-columns: 1fr;

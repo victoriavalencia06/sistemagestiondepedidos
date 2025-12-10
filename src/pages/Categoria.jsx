@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { FaPlus, FaSearch } from 'react-icons/fa';
+import { FaPlus, FaSearch, FaTag } from 'react-icons/fa';
 import CategoriaList from '../components/categoria/CategoriaList';
 import CategoriaForm from '../components/categoria/CategoriaForm';
 import categoriaService from '../services/categoriaService';
@@ -175,7 +175,12 @@ const Categorias = () => {
     return (
         <div className="management-container">
             <div className="management-header">
-                <h1 className="management-title">Gestión de Categorías</h1>
+                <div className="management-header-left">
+                    <h1 className="management-title">
+                        <FaTag style={{ marginRight: 8 }} />
+                        Gestión de Categorias
+                    </h1>
+                </div>
                 {!showForm && (
                     <button onClick={handleCreate} className="btn-management">
                         <FaPlus style={{ marginRight: 6 }} /> Nueva Categoría
